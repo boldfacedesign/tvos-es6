@@ -1,0 +1,24 @@
+{
+  "name": "tvos-es6",
+  "version": "1.0.0",
+  "description": "Apple TV Client Server App built using ES6 Modules and TVJS Framework",
+  "main": "app.js",
+  "scripts": {
+    "build": "rollup -c",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "tvos",
+    "tvjs",
+    "es6",
+    "es2015",
+    "tvml"
+  ],
+  "author": "David Parker",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-preset-es2015-rollup": "^1.1.1",
+    "rollup-plugin-babel": "^2.3.9",
+    "rollup-plugin-json": "^2.0.0"
+  }
+}
