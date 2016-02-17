@@ -2,7 +2,8 @@
 
 
 import ResourceLoader from "./resource_loader.js"
-import presenter from "./prezenter.js"
+import Presenter from "./prezenter.js"
+import Router from "./router.js"
 /*
 Copyright (C) 2015 Apple Inc. All Rights Reserved.
 See LICENSE.txt for this sample’s licensing information
@@ -12,7 +13,7 @@ This is the entry point to the application and handles the initial loading of re
 */
 
 let resourceLoader
-let Presenter
+let presenter
 
 /**
  * @description The onLaunch callback is invoked after the application JavaScript 
@@ -42,12 +43,19 @@ App.onLaunch = options => {
     // evaluateScripts(javascriptFiles, success => {
     //     if (success) {
             resourceLoader = new ResourceLoader(options.BASEURL);
-            Presenter = new presenter(options.BASEURL)
+            presenter = new Presenter(options.BASEURL);
+            let router = new Router(options.BASEURL)
 
             let index = resourceLoader.loadResource(`${options.BASEURL}templates/Index.xml.js`,
                 resource => {
-                    let doc = Presenter.makeDocument(resource);
-                    doc.addEventListener("select", Presenter.load.bind(Presenter));
+                    let doc = presenter.makeDocument(resource);
+                    // doc.addEventListener("select", presenter.load.bind(presenter));
+                    doc.addEventListener("select", event => {
+                        let ele = event.target,
+                            viewURL = ele.getAttribute("href");
+                        console.log(viewURL);
+                        router.navigate(viewURL);
+                    });
                     navigationDocument.pushDocument(doc);
                 });
         // } else {
@@ -88,7 +96,7 @@ const createAlert = (title, description) => {
 
 /**
  * @description - an example implementation of search that reacts to the 
- * keyboard onTextChange (see Presenter.js) to filter the lockup items based on the search text
+ * keyboard onTextChange (see presenter.js) to filter the lockup items based on the search text
  * @param {Document} doc - active xml document 
  * @param {String} searchText - current text value of keyboard search input
  */

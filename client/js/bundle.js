@@ -78,7 +78,7 @@ var ResourceLoader = function () {
     return ResourceLoader;
 }();
 
-var Presenter$2 = function () {
+var Presenter$1 = function () {
     function Presenter(baseURL) {
         babelHelpers.classCallCheck(this, Presenter);
 
@@ -347,6 +347,94 @@ var Presenter$2 = function () {
     return Presenter;
 }();
 
+function template(json) {
+	return `<?xml version="1.0" encoding="UTF-8" ?>
+	<document>
+		<alertTemplate>
+			<title>${ json.test }</title>
+			<description>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</description>
+			<button videoURL="http://techslides.com/demos/sample-videos/small.mp4">
+				<text>Button 1</text>
+			</button>
+			<button>
+				<text>Button 2</text>
+			</button>
+		</alertTemplate>
+	</document>`;
+}
+
+class descriptiveAlertView {
+	constructor(options) {
+		this.options = options;
+		this.initialize();
+	}
+	initialize() {
+		this.render();
+	}
+	render() {
+		var json = this.options;
+		console.log(json);
+		this.doc = this.makeDocument(template(json));
+		this.doc.addEventListener("select", function (event) {
+			var ele = event.target,
+			    videoURL = ele.getAttribute("videoURL");
+
+			if (videoURL) {
+				var player = new Player();
+				var playlist = new Playlist();
+				var mediaItem = new MediaItem("video", videoURL);
+
+				player.playlist = playlist;
+				player.playlist.push(mediaItem);
+				player.present();
+
+				navigationDocument.dismissModal();
+			}
+		});
+
+		navigationDocument.presentModal(this.doc);
+	}
+	makeDocument(resource) {
+		if (!this.parser) {
+			this.parser = new DOMParser();
+		}
+
+		return this.parser.parseFromString(resource, "application/xml");
+	}
+}
+
+var router = function () {
+	function router(baseurl) {
+		babelHelpers.classCallCheck(this, router);
+
+		if (!baseurl) {
+			throw "router: baseurl is required.";
+		}
+
+		this.BASEURL = baseurl;
+	}
+
+	babelHelpers.createClass(router, [{
+		key: "navigate",
+		value: function navigate(url) {
+			var self = this;
+			url = url.replace(/#/, "");
+
+			switch (url) {
+				case "descriptiveAlert":
+					self.descriptiveAlert();
+					break;
+			}
+		}
+	}, {
+		key: "descriptiveAlert",
+		value: function descriptiveAlert() {
+			var descriptiveAlertView$$ = new descriptiveAlertView({ test: "123" });
+		}
+	}]);
+	return router;
+}();
+
 /*
 Copyright (C) 2015 Apple Inc. All Rights Reserved.
 See LICENSE.txt for this sample’s licensing information
@@ -356,7 +444,7 @@ This is the entry point to the application and handles the initial loading of re
 */
 
 var resourceLoader = undefined;
-var Presenter$1 = undefined;
+var presenter = undefined;
 
 /**
  * @description The onLaunch callback is invoked after the application JavaScript 
@@ -386,11 +474,18 @@ App.onLaunch = function (options) {
     // evaluateScripts(javascriptFiles, success => {
     //     if (success) {
     resourceLoader = new ResourceLoader(options.BASEURL);
-    Presenter$1 = new Presenter$2(options.BASEURL);
+    presenter = new Presenter$1(options.BASEURL);
+    var router$$ = new router(options.BASEURL);
 
     var index = resourceLoader.loadResource(options.BASEURL + "templates/Index.xml.js", function (resource) {
-        var doc = Presenter$1.makeDocument(resource);
-        doc.addEventListener("select", Presenter$1.load.bind(Presenter$1));
+        var doc = presenter.makeDocument(resource);
+        // doc.addEventListener("select", presenter.load.bind(presenter));
+        doc.addEventListener("select", function (event) {
+            var ele = event.target,
+                viewURL = ele.getAttribute("href");
+            console.log(viewURL);
+            router$$.navigate(viewURL);
+        });
         navigationDocument.pushDocument(doc);
     });
     // } else {

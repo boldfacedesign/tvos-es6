@@ -29,7 +29,7 @@ var Template = function() { return `<?xml version="1.0" encoding="UTF-8" ?>
             </lockup>
           </relatedContent>
         </listItemLockup>
-        <listItemLockup template="${this.BASEURL}templates/AlertWithDescription.xml.js" presentation="modalDialogPresenter" accessibilityText="Accessible alert template with description">
+        <listItemLockup href="#descriptiveAlert" template="${this.BASEURL}templates/AlertWithDescription.xml.js" presentation="modalDialogPresenter" accessibilityText="Accessible alert template with description">
           <title>Alert with Description</title>
           <relatedContent>
             <lockup>
