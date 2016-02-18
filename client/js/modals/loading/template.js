@@ -1,0 +1,9 @@
+export default function template () { return `<?xml version="1.0" encoding="UTF-8" ?>
+<document>
+	<loadingTemplate>
+		<activityIndicator>
+			<text>Loading</text>
+		</activityIndicator>
+	</loadingTemplate>
+</document>`
+}

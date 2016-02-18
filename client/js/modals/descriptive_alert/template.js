@@ -7,7 +7,7 @@ export default function template (json) {
 			<button videoURL="http://techslides.com/demos/sample-videos/small.mp4">
 				<text>Button 1</text>
 			</button>
-			<button>
+			<button videoURL="http://static.videezy.com/system/resources/previews/000/004/325/original/49.mp4">
 				<text>Button 2</text>
 			</button>
 		</alertTemplate>

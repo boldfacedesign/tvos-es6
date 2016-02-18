@@ -24,6 +24,55 @@ babelHelpers.createClass = function () {
   };
 }();
 
+babelHelpers.get = function get(object, property, receiver) {
+  if (object === null) object = Function.prototype;
+  var desc = Object.getOwnPropertyDescriptor(object, property);
+
+  if (desc === undefined) {
+    var parent = Object.getPrototypeOf(object);
+
+    if (parent === null) {
+      return undefined;
+    } else {
+      return get(parent, property, receiver);
+    }
+  } else if ("value" in desc) {
+    return desc.value;
+  } else {
+    var getter = desc.get;
+
+    if (getter === undefined) {
+      return undefined;
+    }
+
+    return getter.call(receiver);
+  }
+};
+
+babelHelpers.inherits = function (subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+};
+
+babelHelpers.possibleConstructorReturn = function (self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return call && (typeof call === "object" || typeof call === "function") ? call : self;
+};
+
 babelHelpers;
 
 /*
@@ -341,77 +390,134 @@ var Presenter$1 = function () {
     }, {
         key: "loadingTemplate",
         value: function loadingTemplate() {
-            return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n        <document>\n          <loadingTemplate>\n            <activityIndicator>\n              <text>Loading...</text>\n            </activityIndicator>\n          </loadingTemplate>\n        </document>";
+            return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n        <document>\n          <loadingTemplate>\n            <activityIndicator>\n              <text>Loading</text>\n            </activityIndicator>\n          </loadingTemplate>\n        </document>";
         }
     }]);
     return Presenter;
 }();
 
-function template(json) {
-	return `<?xml version="1.0" encoding="UTF-8" ?>
-	<document>
-		<alertTemplate>
-			<title>${ json.test }</title>
-			<description>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</description>
-			<button videoURL="http://techslides.com/demos/sample-videos/small.mp4">
-				<text>Button 1</text>
-			</button>
-			<button>
-				<text>Button 2</text>
-			</button>
-		</alertTemplate>
-	</document>`;
+var base_view = function () {
+	function base_view(options) {
+		babelHelpers.classCallCheck(this, base_view);
+
+		this.options = options;
+		console.log(options);
+		this.parser = new DOMParser();
+		this.presenter = new Presenter$1(options.BASEURL);
+	}
+
+	babelHelpers.createClass(base_view, [{
+		key: "makeDoc",
+		value: function makeDoc(xml) {
+			return this.parser.parseFromString(xml, "application/xml");
+			// return this.presenter.makeDocument(xml)
+		}
+	}, {
+		key: "defaultPresent",
+		value: function defaultPresent(doc) {
+			this.presenter.defaultPresenter(doc);
+		}
+	}]);
+	return base_view;
+}();
+
+function template$2() {
+	return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n\t<stackTemplate>\n\t\t<banner>\n\t\t\t<title>Stack Template</title>\n\t\t</banner>\n\t\t<collectionList>\n\t\t\t<shelf>\n\t\t\t\t<section>\n\t\t\t\t\t<lockup>\n\t\t\t\t\t\t<img src=\"https://upload.wikimedia.org/wikipedia/en/archive/d/d5/20160130060108!Iron_Man_3_theatrical_poster.jpg\" width=\"182\" height=\"274\" />\n\t\t\t\t\t\t<title>Movie 1</title>\n\t\t\t\t\t</lockup>\n\t\t\t\t</section>\n\t\t\t</shelf>\n\t\t</collectionList>\n\t</stackTemplate>\n</document>";
 }
 
-class descriptiveAlertView {
-	constructor(options) {
+var home_view = function (_base_view) {
+	babelHelpers.inherits(home_view, _base_view);
+
+	function home_view(options) {
+		babelHelpers.classCallCheck(this, home_view);
+
+		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(home_view).call(this, options));
+
+		_this.initialize();
+		return _this;
+	}
+
+	babelHelpers.createClass(home_view, [{
+		key: "initialize",
+		value: function initialize() {
+			this.render();
+		}
+	}, {
+		key: "render",
+		value: function render() {
+			this.el = babelHelpers.get(Object.getPrototypeOf(home_view.prototype), "makeDoc", this).call(this, template$2());
+			return this;
+		}
+	}]);
+	return home_view;
+}(base_view);
+
+function template$3(json) {
+	return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n\t<document>\n\t\t<alertTemplate>\n\t\t\t<title>" + json.test + "</title>\n\t\t\t<description>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</description>\n\t\t\t<button videoURL=\"http://techslides.com/demos/sample-videos/small.mp4\">\n\t\t\t\t<text>Button 1</text>\n\t\t\t</button>\n\t\t\t<button videoURL=\"http://static.videezy.com/system/resources/previews/000/004/325/original/49.mp4\">\n\t\t\t\t<text>Button 2</text>\n\t\t\t</button>\n\t\t</alertTemplate>\n\t</document>";
+}
+
+var descriptiveAlertView = function () {
+	function descriptiveAlertView(options) {
+		babelHelpers.classCallCheck(this, descriptiveAlertView);
+
 		this.options = options;
 		this.initialize();
 	}
-	initialize() {
-		this.render();
-	}
-	render() {
-		var json = this.options;
-		console.log(json);
-		this.doc = this.makeDocument(template(json));
-		this.doc.addEventListener("select", function (event) {
-			var ele = event.target,
-			    videoURL = ele.getAttribute("videoURL");
 
-			if (videoURL) {
-				var player = new Player();
-				var playlist = new Playlist();
-				var mediaItem = new MediaItem("video", videoURL);
-
-				player.playlist = playlist;
-				player.playlist.push(mediaItem);
-				player.present();
-
-				navigationDocument.dismissModal();
-			}
-		});
-
-		navigationDocument.presentModal(this.doc);
-	}
-	makeDocument(resource) {
-		if (!this.parser) {
-			this.parser = new DOMParser();
+	babelHelpers.createClass(descriptiveAlertView, [{
+		key: "initialize",
+		value: function initialize() {
+			this.render();
 		}
+	}, {
+		key: "render",
+		value: function render() {
+			var json = this.options;
+			console.log(json);
+			this.doc = this.makeDocument(template$3(json));
+			this.doc.addEventListener("select", function (event) {
+				var ele = event.target,
+				    videoURL = ele.getAttribute("videoURL");
 
-		return this.parser.parseFromString(resource, "application/xml");
-	}
-}
+				if (videoURL) {
+					var player = new Player();
+					var playlist = new Playlist();
+					var mediaItem = new MediaItem("video", videoURL);
+
+					player.playlist = playlist;
+					player.playlist.push(mediaItem);
+					player.present();
+
+					navigationDocument.dismissModal();
+				}
+			});
+
+			navigationDocument.presentModal(this.doc);
+		}
+	}, {
+		key: "makeDocument",
+		value: function makeDocument(resource) {
+			if (!this.parser) {
+				this.parser = new DOMParser();
+			}
+
+			return this.parser.parseFromString(resource, "application/xml");
+		}
+	}]);
+	return descriptiveAlertView;
+}();
 
 var router = function () {
-	function router(baseurl) {
+	function router(options) {
 		babelHelpers.classCallCheck(this, router);
 
-		if (!baseurl) {
+		if (!options.baseurl) {
 			throw "router: baseurl is required.";
 		}
 
-		this.BASEURL = baseurl;
+		this.BASEURL = options.baseurl;
+		this.menuBar = options.menu_bar;
+		this.presenter = new Presenter$1(options.baseurl);
 	}
 
 	babelHelpers.createClass(router, [{
@@ -424,7 +530,18 @@ var router = function () {
 				case "descriptiveAlert":
 					self.descriptiveAlert();
 					break;
+				case "home":
+					self.home();
+					break;
 			}
+		}
+	}, {
+		key: "home",
+		value: function home() {
+			var homeView = new home_view(this.BASEURL);
+			console.log(new XMLSerializer().serializeToString(homeView.el));
+			console.log(new XMLSerializer().serializeToString(this.menuBar.el.getElementById("home_link")));
+			this.presenter.menuBarItemPresenter(homeView.el, this.menuBar.el.getElementById("home_link"));
 		}
 	}, {
 		key: "descriptiveAlert",
@@ -435,16 +552,72 @@ var router = function () {
 	return router;
 }();
 
-/*
-Copyright (C) 2015 Apple Inc. All Rights Reserved.
-See LICENSE.txt for this sample’s licensing information
+function template() {
+  return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n  <menuBarTemplate>\n    <menuBar>\n      <menuItem href=\"#home\" id=\"home_link\" loadingtext=\"Home\">\n        <title>Home</title>\n      </menuItem>\n      <menuItem href=\"#shop\" id=\"shop_link\" loadingtext=\"Shop\">\n        <title>Shop</title>\n      </menuItem>\n    </menuBar>\n  </menuBarTemplate>\n</document>";
+}
 
-Abstract:
-This is the entry point to the application and handles the initial loading of required JavaScript files.
-*/
+var menu_bar = function (_base_view) {
+	babelHelpers.inherits(menu_bar, _base_view);
 
-var resourceLoader = undefined;
-var presenter = undefined;
+	function menu_bar(options) {
+		babelHelpers.classCallCheck(this, menu_bar);
+
+		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(menu_bar).call(this, options));
+
+		_this.initialize();
+		return _this;
+	}
+
+	babelHelpers.createClass(menu_bar, [{
+		key: "initialize",
+		value: function initialize() {
+			this.render();
+		}
+	}, {
+		key: "render",
+		value: function render() {
+			this.el = babelHelpers.get(Object.getPrototypeOf(menu_bar.prototype), "makeDoc", this).call(this, template());
+			return this;
+		}
+	}, {
+		key: "onSelect",
+		value: function onSelect(event) {
+			console.log("menu_bar select");
+		}
+	}]);
+	return menu_bar;
+}(base_view);
+
+function template$1() {
+	return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n\t<loadingTemplate>\n\t\t<activityIndicator>\n\t\t\t<text>Loading</text>\n\t\t</activityIndicator>\n\t</loadingTemplate>\n</document>";
+}
+
+var loading_modal = function (_base_view) {
+	babelHelpers.inherits(loading_modal, _base_view);
+
+	function loading_modal(options) {
+		babelHelpers.classCallCheck(this, loading_modal);
+
+		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(loading_modal).call(this, options));
+
+		_this.initialize();
+		return _this;
+	}
+
+	babelHelpers.createClass(loading_modal, [{
+		key: "initialize",
+		value: function initialize() {
+			this.render();
+		}
+	}, {
+		key: "render",
+		value: function render() {
+			this.el = babelHelpers.get(Object.getPrototypeOf(loading_modal.prototype), "makeDoc", this).call(this, template$1());
+			return this;
+		}
+	}]);
+	return loading_modal;
+}(base_view);
 
 /**
  * @description The onLaunch callback is invoked after the application JavaScript 
@@ -473,21 +646,33 @@ App.onLaunch = function (options) {
      */
     // evaluateScripts(javascriptFiles, success => {
     //     if (success) {
-    resourceLoader = new ResourceLoader(options.BASEURL);
-    presenter = new Presenter$1(options.BASEURL);
-    var router$$ = new router(options.BASEURL);
+    // resourceLoader = new ResourceLoader(options.BASEURL);
+    var presenter = new Presenter$1(options.BASEURL);
 
-    var index = resourceLoader.loadResource(options.BASEURL + "templates/Index.xml.js", function (resource) {
-        var doc = presenter.makeDocument(resource);
-        // doc.addEventListener("select", presenter.load.bind(presenter));
-        doc.addEventListener("select", function (event) {
-            var ele = event.target,
-                viewURL = ele.getAttribute("href");
-            console.log(viewURL);
-            router$$.navigate(viewURL);
-        });
-        navigationDocument.pushDocument(doc);
-    });
+    // let loadingScreen = new LoadingScreen(options.BASEURL);
+    // presenter.defaultPresenter(loadingScreen.el);
+
+    presenter.showLoadingIndicator();
+
+    var menuBar = new menu_bar(options.BASEURL);
+    presenter.defaultPresenter(menuBar.el);
+
+    var router$$ = new router({ baseurl: options.BASEURL, menu_bar: menuBar });
+
+    router$$.navigate("#home");
+
+    // let index = resourceLoader.loadResource(`${options.BASEURL}templates/Index.xml.js`,
+    //     resource => {
+    //         let doc = presenter.makeDocument(resource);
+    //         // doc.addEventListener("select", presenter.load.bind(presenter));
+    //         doc.addEventListener("select", event => {
+    //             let ele = event.target,
+    //                 viewURL = ele.getAttribute("href");
+    //             console.log(viewURL);
+    //             router.navigate(viewURL);
+    //         });
+    //         navigationDocument.pushDocument(doc);
+    //     });
     // } else {
     /*
     Be sure to handle error cases in your code. You should present a readable, and friendly

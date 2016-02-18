@@ -1,17 +1,9 @@
-/*
-Copyright (C) 2015 Apple Inc. All Rights Reserved.
-See LICENSE.txt for this sample’s licensing information
+import ResourceLoader from "./resource_loader.js"
 
-Abstract:
-Templates can be displayed to the user via three primary means:
-- pushing a document on the stack
-- associating a document with a menu bar item
-- presenting a modal
-This class shows examples for each one.
-*/
-
-var Presenter = {
-
+export default class Presenter {
+	constructor(baseURL) {
+		this.BASEURL = baseURL
+	}
     /**
      * @description This function demonstrate the default way of present a document. 
      * The document can be presented on screen by adding to to the documents array
@@ -24,7 +16,7 @@ var Presenter = {
      * arguments: the new document, the old document.
      * @param {Document} xml - The XML document to push on the stack
      */
-    defaultPresenter: function(xml) {
+    defaultPresenter(xml) {
 
         /*
         If a loading indicator is visible, we replace it with our document, otherwise 
@@ -36,27 +28,27 @@ var Presenter = {
         } else {
             navigationDocument.pushDocument(xml);
         }
-    },
+    }
 
     /**
      * @description Extends the default presenter functionality and registers
      * the onTextChange handler to allow for a search implementation
      * @param {Document} xml - The XML document to push on the stack
      */
-    searchPresenter: function(xml) {
+    searchPresenter(xml) {
 
         this.defaultPresenter.call(this, xml);
-        var doc = xml;
+        let doc = xml;
 
-        var searchField = doc.getElementsByTagName("searchField").item(0);
-        var keyboard = searchField.getFeature("Keyboard");
+        let searchField = doc.getElementsByTagName("searchField").item(0);
+        let keyboard = searchField.getFeature("Keyboard");
 
         keyboard.onTextChange = function() {
-            var searchText = keyboard.text;
+            let searchText = keyboard.text;
             console.log('search text changed: ' + searchText);
             buildResults(doc, searchText);
         }
-    },    
+    }
 
     /**
      * @description This function demonstrates the presentation of documents as modals.
@@ -67,9 +59,9 @@ var Presenter = {
      *
      * @param {Document} xml - The XML document to present as modal
      */
-    modalDialogPresenter: function(xml) {
+    modalDialogPresenter(xml) {
         navigationDocument.presentModal(xml);
-    },
+    }
 
     /**
      * @description This function demonstrates how to present documents within a menu bar.
@@ -87,13 +79,13 @@ var Presenter = {
      * @param {Document} xml - The XML document to associate with a menu bar element
      * @param {Element} ele - The currently selected item element
      */
-    menuBarItemPresenter: function(xml, ele) {
+    menuBarItemPresenter(xml, ele) {
         /*
         To get the menu bar's 'MenuBarDocument' feature, we move up the DOM Node tree using
         the parentNode property. This allows us to access the the menuBar element from the 
         current item element.
         */
-        var feature = ele.parentNode.getFeature("MenuBarDocument");
+        let feature = ele.parentNode.getFeature("MenuBarDocument");
 
         if (feature) {
             /*
@@ -101,7 +93,7 @@ var Presenter = {
             set, you call the getDocument function the MenuBarDocument feature. The function
             takes one argument, the item element.
             */
-            var currentDoc = feature.getDocument(ele);
+            let currentDoc = feature.getDocument(ele);
             /*
             To present a document within the menu bar, you need to associate it with the 
             menu bar item. This is accomplished by call the setDocument function on MenuBarDocument
@@ -117,7 +109,7 @@ var Presenter = {
                 feature.setDocument(xml, ele);
             }
         }
-    },
+    }
 
     /**
      * @description This function handles the select event and invokes the appropriate presentation method.
@@ -126,13 +118,14 @@ var Presenter = {
      *
      * @param {Event} event - The select event
      */
-    load: function(event) {
+    load(event) {
         console.log(event);
 
-        var self = this,
+        let self = this,
             ele = event.target,
             templateURL = ele.getAttribute("template"),
-            presentation = ele.getAttribute("presentation");
+            presentation = ele.getAttribute("presentation"),
+            resourceLoader = new ResourceLoader(this.BASEURL);;
 
         /*
         Check if the selected element has a 'template' attribute. If it does then we begin
@@ -152,13 +145,13 @@ var Presenter = {
             Here we are retrieving the template listed in the templateURL property.
             */
             resourceLoader.loadResource(templateURL,
-                function(resource) {
+                resource => {
                     if (resource) {
                         /*
                         The XML template must be turned into a DOMDocument in order to be 
                         presented to the user. See the implementation of makeDocument below.
                         */
-                        var doc = self.makeDocument(resource);
+                        let doc = self.makeDocument(resource);
                         
                         /*
                         Event listeners are used to handle and process user actions or events. Listeners
@@ -186,7 +179,7 @@ var Presenter = {
                 }
             );
         }
-    },
+    }
 
     /**
      * @description This function creates a XML document from the contents of a template file.
@@ -196,28 +189,28 @@ var Presenter = {
      * @param {String} resource - The contents of the template file
      * @return {Document} - XML Document
      */
-    makeDocument: function(resource) {
+    makeDocument(resource) {
         if (!Presenter.parser) {
             Presenter.parser = new DOMParser();
         }
 
-        var doc = Presenter.parser.parseFromString(resource, "application/xml");
+        let doc = Presenter.parser.parseFromString(resource, "application/xml");
         return doc;
-    },
+    }
 
     /**
      * @description This function handles the display of loading indicators.
      *
      * @param {String} presentation - The presentation function name
      */
-    showLoadingIndicator: function(presentation) {
+    showLoadingIndicator(presentation) {
         /*
         You can reuse documents that have previously been created. In this implementation
         we check to see if a loadingIndicator document has already been created. If it 
         hasn't then we create one.
         */
         if (!this.loadingIndicator) {
-            this.loadingIndicator = this.makeDocument(this.loadingTemplate);
+            this.loadingIndicator = this.makeDocument(this.loadingTemplate());
         }
         
         /* 
@@ -227,30 +220,41 @@ var Presenter = {
             navigationDocument.pushDocument(this.loadingIndicator);
             this.loadingIndicatorVisible = true;
         }
-    },
+    }
 
     /**
      * @description This function handles the removal of loading indicators.
      * If a loading indicator is visible, it removes it from the stack and sets the loadingIndicatorVisible attribute to false.
      */
-    removeLoadingIndicator: function() {
+    removeLoadingIndicator() {
         if (this.loadingIndicatorVisible) {
             navigationDocument.removeDocument(this.loadingIndicator);
             this.loadingIndicatorVisible = false;
         }
-    },
+    }
 
     /**
      * @description Instead of a loading a template from the server, it can stored in a property 
      * or variable for convenience. This is generally employed for templates that can be reused and
      * aren't going to change often, like a loadingIndicator.
      */
-    loadingTemplate: `<?xml version="1.0" encoding="UTF-8" ?>
+    loadingTemplate() {
+    	return `<?xml version="1.0" encoding="UTF-8" ?>
         <document>
           <loadingTemplate>
             <activityIndicator>
-              <text>Loading...</text>
+              <text>Loading</text>
             </activityIndicator>
           </loadingTemplate>
         </document>`
+    }
 }
+
+
+
+// export function makeDocument(resource) {
+// 	const parser = new DOMParser();
+// 	let doc = parser.parseFromString(resource, "application/xml");
+
+// 	return doc;
+// }
