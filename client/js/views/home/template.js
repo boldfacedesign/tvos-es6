@@ -1,19 +1,41 @@
-export default function template () { return `<?xml version="1.0" encoding="UTF-8" ?>
+import { tmplString } from "../../shared/util.js"
+
+let tmpl = json => tmplString`<?xml version="1.0" encoding="UTF-8" ?>
 <document>
+	<head>
+		<style>
+			.shelf {
+				tv-interitem-spacing: 60;
+			}
+		</style>
+	</head>
 	<stackTemplate>
-		<banner>
-			<title>Stack Template</title>
-		</banner>
 		<collectionList>
 			<shelf>
+				<header>
+					<title>Schwarzenegger</title>
+				</header>
 				<section>
-					<lockup>
-						<img src="https://upload.wikimedia.org/wikipedia/en/archive/d/d5/20160130060108!Iron_Man_3_theatrical_poster.jpg" width="182" height="274" />
-						<title>Movie 1</title>
-					</lockup>
+					${json.arnie.map(item => tmplString`<lockup>
+						<img src="${item.Poster}" width="300" height="450" />
+						<title>$${item.Title}</title>
+					</lockup>`)}
+				</section>
+			</shelf>
+			<shelf>
+				<header>
+					<title>Cage</title>
+				</header>
+				<section>
+					${json.cage.map(item => tmplString`<lockup>
+						<img src="${item.Poster}" width="300" height="450" />
+						<title>$${item.Title}</title>
+					</lockup>`)}
 				</section>
 			</shelf>
 		</collectionList>
 	</stackTemplate>
 </document>`
-}
+
+export default tmpl;
+

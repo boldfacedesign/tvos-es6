@@ -28,8 +28,6 @@ export default class router {
 	}
 	home() {
 		let homeView = new HomeView(this.BASEURL);
-		console.log(new XMLSerializer().serializeToString(homeView.el));
-		console.log(new XMLSerializer().serializeToString(this.menuBar.el.getElementById("home_link")))
 		this.presenter.menuBarItemPresenter(homeView.el, this.menuBar.el.getElementById("home_link"))
 	}
 	descriptiveAlert() {
