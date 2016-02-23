@@ -16,7 +16,7 @@ export default class details_view extends base_view {
 		this.el = super.makeDoc(template(this.model));
 		return this;
 	}
-	onSelect(e) {
+	select(e) {
 		console.log("select");
 	}
 }

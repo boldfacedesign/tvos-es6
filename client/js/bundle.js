@@ -380,6 +380,7 @@ var Presenter$1 = function () {
     }, {
         key: "showLoadingIndicator",
         value: function showLoadingIndicator(presentation) {
+            console.log("presenter show loading");
             /*
             You can reuse documents that have previously been created. In this implementation
             we check to see if a loadingIndicator document has already been created. If it 
@@ -427,8 +428,6 @@ var Presenter$1 = function () {
     return Presenter;
 }();
 
-// import router from "./shared_router.js"
-
 var base_view = function () {
 	function base_view(options) {
 		babelHelpers.classCallCheck(this, base_view);
@@ -450,8 +449,10 @@ var base_view = function () {
 		key: "onSelect",
 		value: function onSelect(e) {
 			if (e.target.getAttribute("href")) {
-				// Router
-			} else {}
+				router.navigate(e.target.getAttribute("href"));
+			} else {
+				this.select();
+			}
 		}
 	}]);
 	return base_view;
@@ -486,8 +487,10 @@ var menu_bar = function (_base_view) {
 			this.el = babelHelpers.get(Object.getPrototypeOf(menu_bar.prototype), "makeDoc", this).call(this, template());
 
 			if (presenter.loading_indicator && navigationDocument.documents.indexOf(presenter.loading_indicator) != -1) {
+				console.log("menu bar replace");
 				navigationDocument.replaceDocument(this.el, presenter.loading_indicator);
 			} else {
+				console.log("menu bar push");
 				navigationDocument.pushDocument(this.el);
 			}
 
@@ -1616,6 +1619,11 @@ var home_view = function (_base_view) {
 			this.el = babelHelpers.get(Object.getPrototypeOf(home_view.prototype), "makeDoc", this).call(this, tmpl(this.model));
 			return this;
 		}
+	}, {
+		key: "select",
+		value: function select(e) {
+			console.log(e.target);
+		}
 	}]);
 	return home_view;
 }(base_view);
@@ -1747,10 +1755,10 @@ var router$1 = function () {
 		key: "home",
 		value: function home() {
 			var homeView = new home_view();
-			console.log(new XMLSerializer().serializeToString(homeView.el));
+			// console.log(new XMLSerializer().serializeToString(homeView.el));
 
-			var menu_home = this.menuBar.el.getElementById("home");
-			console.log(new XMLSerializer().serializeToString(menu_home));
+			// let menu_home = this.menuBar.el.getElementById("home");
+			// console.log(new XMLSerializer().serializeToString(menu_home));
 
 			this.presenter.menuBarItemPresenter(homeView.el, this.menuBar.el.getElementById("home"));
 		}

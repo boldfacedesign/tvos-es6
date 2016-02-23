@@ -1,5 +1,5 @@
 import Presenter from "../presenter.js"
-// import router from "./shared_router.js"
+import router from "./shared_router.js"
 
 export default class base_view {
 	constructor (options) {
@@ -15,9 +15,9 @@ export default class base_view {
 	}
 	onSelect(e) {
 		if (e.target.getAttribute("href")) {
-			// Router
+			router.navigate(e.target.getAttribute("href"))
 		} else {
-
+			this.select();
 		}
 	}
 }

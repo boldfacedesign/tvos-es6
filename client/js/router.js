@@ -30,10 +30,10 @@ export default class router {
 	}
 	home() {
 		let homeView = new HomeView();
-		console.log(new XMLSerializer().serializeToString(homeView.el));
+		// console.log(new XMLSerializer().serializeToString(homeView.el));
 
-		let menu_home = this.menuBar.el.getElementById("home");
-		console.log(new XMLSerializer().serializeToString(menu_home));
+		// let menu_home = this.menuBar.el.getElementById("home");
+		// console.log(new XMLSerializer().serializeToString(menu_home));
 
 		this.presenter.menuBarItemPresenter(homeView.el, this.menuBar.el.getElementById("home"))
 	}

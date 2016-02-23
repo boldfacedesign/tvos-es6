@@ -206,6 +206,7 @@ export default class Presenter {
      * @param {String} presentation - The presentation function name
      */
     showLoadingIndicator(presentation) {
+    	console.log("presenter show loading")
         /*
         You can reuse documents that have previously been created. In this implementation
         we check to see if a loadingIndicator document has already been created. If it 

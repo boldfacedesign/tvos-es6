@@ -16,4 +16,7 @@ export default class home_view extends base_view {
 		this.el = super.makeDoc(template(this.model));
 		return this;
 	}
+	select(e) {
+		console.log(e.target)
+	}
 }
