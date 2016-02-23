@@ -1,11 +1,11 @@
 //# sourceURL=application.js
 
 
-import ResourceLoader from "./resource_loader.js"
+// import ResourceLoader from "./resource_loader.js"
+import router from "./shared/shared_router.js"
 import Presenter from "./presenter.js"
-import Router from "./router.js"
+import app_config from "./shared/app_config.js"
 import MenuBar from "./components/menu_bar/menu_bar.js"
-import LoadingScreen from "./modals/loading/loading.js"
 /*
 Copyright (C) 2015 Apple Inc. All Rights Reserved.
 See LICENSE.txt for this sample’s licensing information
@@ -14,8 +14,8 @@ Abstract:
 This is the entry point to the application and handles the initial loading of required JavaScript files.
 */
 
-let resourceLoader
-let presenter
+// let resourceLoader
+// let presenter
 
 /**
  * @description The onLaunch callback is invoked after the application JavaScript 
@@ -33,57 +33,20 @@ App.onLaunch = options => {
     //     `${options.BASEURL}js/resource_loader.js`,
     //     `${options.BASEURL}js/prezenter.js`
     // ];
+    // let router = new Router();
+    app_config.baseURL = options.BASEURL;
 
-    /**
-     * evaluateScripts is responsible for loading the JavaScript files neccessary
-     * for you app to run. It can be used at any time in your apps lifecycle.
-     * 
-     * @param - Array of JavaScript URLs  
-     * @param - Function called when the scripts have been evaluated. A boolean is
-     * passed that indicates if the scripts were evaluated successfully.
-     */
-    // evaluateScripts(javascriptFiles, success => {
-    //     if (success) {
-            // resourceLoader = new ResourceLoader(options.BASEURL);
-            let presenter = new Presenter(options.BASEURL);
+    let presenter = new Presenter();
+    // presenter.showLoadingIndicator();
 
-            // let loadingScreen = new LoadingScreen(options.BASEURL);
-            // presenter.defaultPresenter(loadingScreen.el);
-
-            presenter.showLoadingIndicator();
-
-            let menuBar = new MenuBar(options.BASEURL);
-            presenter.defaultPresenter(menuBar.el);
-
-            let router = new Router({baseurl: options.BASEURL, menu_bar: menuBar});
-
-            router.navigate("#home");
-
-            // let index = resourceLoader.loadResource(`${options.BASEURL}templates/Index.xml.js`,
-            //     resource => {
-            //         let doc = presenter.makeDocument(resource);
-            //         // doc.addEventListener("select", presenter.load.bind(presenter));
-            //         doc.addEventListener("select", event => {
-            //             let ele = event.target,
-            //                 viewURL = ele.getAttribute("href");
-            //             console.log(viewURL);
-            //             router.navigate(viewURL);
-            //         });
-            //         navigationDocument.pushDocument(doc);
-            //     });
-        // } else {
-            /*
-            Be sure to handle error cases in your code. You should present a readable, and friendly
-            error message to the user in an alert dialog.
-
-            See alertDialog.xml.js template for details.
-            */
-            // let alert = createAlert("Evaluate Scripts Error", "There was an error attempting to evaluate the external JavaScript files.\n\n Please check your network connection and try again later.");
-            // navigationDocument.presentModal(alert);
-
-            // throw ("Playback Example: unable to evaluate scripts.");
-    //     }
-    // });
+    // let menuBar = new MenuBar();
+    // if (presenter.loading_indicator && navigationDocument.documents.indexOf(presenter.loading_indicator) != -1) {
+    //     navigationDocument.replaceDocument(menuBar.el, presenter.loading_indicator);
+    // } else {
+    //     navigationDocument.pushDocument(menuBar.el);
+    // }
+    router.navigate("#home");
+    // presenter.defaultPresenter(menuBar.el);
 }
 
 

@@ -83,6 +83,27 @@ babelHelpers.taggedTemplateLiteral = function (strings, raw) {
 
 babelHelpers;
 
+var config = function () {
+	function config() {
+		babelHelpers.classCallCheck(this, config);
+
+		this.base_url = null;
+	}
+
+	babelHelpers.createClass(config, [{
+		key: "baseURL",
+		get: function get() {
+			return this.base_url;
+		},
+		set: function set(url) {
+			this.base_url = url;
+		}
+	}]);
+	return config;
+}();
+
+var app_config = new config();
+
 /*
 Copyright (C) 2015 Apple Inc. All Rights Reserved.
 See LICENSE.txt for this sample’s licensing information
@@ -138,9 +159,9 @@ var ResourceLoader = function () {
 var Presenter$1 = function () {
     function Presenter(baseURL) {
         babelHelpers.classCallCheck(this, Presenter);
-
-        this.BASEURL = baseURL;
     }
+    // this.BASEURL = baseURL
+
     /**
      * @description This function demonstrate the default way of present a document. 
      * The document can be presented on screen by adding to to the documents array
@@ -237,6 +258,8 @@ var Presenter$1 = function () {
             */
             var feature = ele.parentNode.getFeature("MenuBarDocument");
 
+            console.log(feature);
+
             if (feature) {
                 /*
                 To retrieve the document associated with the menu bar element, if one has been 
@@ -276,8 +299,8 @@ var Presenter$1 = function () {
             var self = this,
                 ele = event.target,
                 templateURL = ele.getAttribute("template"),
-                presentation = ele.getAttribute("presentation"),
-                resourceLoader = new ResourceLoader(this.BASEURL);;
+                presentation = ele.getAttribute("presentation");
+            // resourceLoader = new ResourceLoader(this.BASEURL);;
 
             /*
             Check if the selected element has a 'template' attribute. If it does then we begin
@@ -404,30 +427,80 @@ var Presenter$1 = function () {
     return Presenter;
 }();
 
+// import router from "./shared_router.js"
+
 var base_view = function () {
 	function base_view(options) {
 		babelHelpers.classCallCheck(this, base_view);
 
 		this.options = options;
-		console.log(options);
 		this.parser = new DOMParser();
-		this.presenter = new Presenter$1(options.BASEURL);
+		this.presenter = new Presenter$1();
 	}
 
 	babelHelpers.createClass(base_view, [{
 		key: "makeDoc",
 		value: function makeDoc(xml) {
-			return this.parser.parseFromString(xml, "application/xml");
+			var doc = this.parser.parseFromString(xml, "application/xml");
+			doc.addEventListener("select", this.onSelect.bind(this));
+			return doc;
 			// return this.presenter.makeDocument(xml)
 		}
 	}, {
-		key: "defaultPresent",
-		value: function defaultPresent(doc) {
-			this.presenter.defaultPresenter(doc);
+		key: "onSelect",
+		value: function onSelect(e) {
+			if (e.target.getAttribute("href")) {
+				// Router
+			} else {}
 		}
 	}]);
 	return base_view;
 }();
+
+function template() {
+  return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n  <menuBarTemplate>\n    <menuBar>\n      <menuItem href=\"#home\" id=\"home\" loadingtext=\"Home\">\n        <title>Movies</title>\n      </menuItem>\n      <menuItem href=\"#shop\" id=\"shop\" loadingtext=\"Shop\">\n        <title>Shop</title>\n      </menuItem>\n    </menuBar>\n  </menuBarTemplate>\n</document>";
+}
+
+var presenter = new Presenter$1();
+
+var menu_bar = function (_base_view) {
+	babelHelpers.inherits(menu_bar, _base_view);
+
+	function menu_bar(options) {
+		babelHelpers.classCallCheck(this, menu_bar);
+
+		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(menu_bar).call(this, options));
+
+		_this.initialize();
+		return _this;
+	}
+
+	babelHelpers.createClass(menu_bar, [{
+		key: "initialize",
+		value: function initialize() {
+			this.render();
+		}
+	}, {
+		key: "render",
+		value: function render() {
+			this.el = babelHelpers.get(Object.getPrototypeOf(menu_bar.prototype), "makeDoc", this).call(this, template());
+
+			if (presenter.loading_indicator && navigationDocument.documents.indexOf(presenter.loading_indicator) != -1) {
+				navigationDocument.replaceDocument(this.el, presenter.loading_indicator);
+			} else {
+				navigationDocument.pushDocument(this.el);
+			}
+
+			return this;
+		}
+	}, {
+		key: "onSelect",
+		value: function onSelect(event) {
+			console.log("menu_bar select");
+		}
+	}]);
+	return menu_bar;
+}(base_view);
 
 function htmlEscape(str) {
     return str.replace(/&/g, '&amp;') // first!
@@ -475,7 +548,7 @@ function tmplString(literalSections) {
 }
 
 var _templateObject = babelHelpers.taggedTemplateLiteral(["<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n\t<head>\n\t\t<style>\n\t\t\t.shelf {\n\t\t\t\ttv-interitem-spacing: 60;\n\t\t\t}\n\t\t</style>\n\t</head>\n\t<stackTemplate>\n\t\t<collectionList>\n\t\t\t<shelf>\n\t\t\t\t<header>\n\t\t\t\t\t<title>Schwarzenegger</title>\n\t\t\t\t</header>\n\t\t\t\t<section>\n\t\t\t\t\t", "\n\t\t\t\t</section>\n\t\t\t</shelf>\n\t\t\t<shelf>\n\t\t\t\t<header>\n\t\t\t\t\t<title>Cage</title>\n\t\t\t\t</header>\n\t\t\t\t<section>\n\t\t\t\t\t", "\n\t\t\t\t</section>\n\t\t\t</shelf>\n\t\t</collectionList>\n\t</stackTemplate>\n</document>"], ["<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n\t<head>\n\t\t<style>\n\t\t\t.shelf {\n\t\t\t\ttv-interitem-spacing: 60;\n\t\t\t}\n\t\t</style>\n\t</head>\n\t<stackTemplate>\n\t\t<collectionList>\n\t\t\t<shelf>\n\t\t\t\t<header>\n\t\t\t\t\t<title>Schwarzenegger</title>\n\t\t\t\t</header>\n\t\t\t\t<section>\n\t\t\t\t\t", "\n\t\t\t\t</section>\n\t\t\t</shelf>\n\t\t\t<shelf>\n\t\t\t\t<header>\n\t\t\t\t\t<title>Cage</title>\n\t\t\t\t</header>\n\t\t\t\t<section>\n\t\t\t\t\t", "\n\t\t\t\t</section>\n\t\t\t</shelf>\n\t\t</collectionList>\n\t</stackTemplate>\n</document>"]);
-var _templateObject2 = babelHelpers.taggedTemplateLiteral(["<lockup>\n\t\t\t\t\t\t<img src=\"", "\" width=\"300\" height=\"450\" />\n\t\t\t\t\t\t<title>$", "</title>\n\t\t\t\t\t</lockup>"], ["<lockup>\n\t\t\t\t\t\t<img src=\"", "\" width=\"300\" height=\"450\" />\n\t\t\t\t\t\t<title>$", "</title>\n\t\t\t\t\t</lockup>"]);
+var _templateObject2 = babelHelpers.taggedTemplateLiteral(["<lockup href=\"#details\">\n\t\t\t\t\t\t<img src=\"", "\" width=\"300\" height=\"450\" />\n\t\t\t\t\t\t<title>$", "</title>\n\t\t\t\t\t</lockup>"], ["<lockup href=\"#details\">\n\t\t\t\t\t\t<img src=\"", "\" width=\"300\" height=\"450\" />\n\t\t\t\t\t\t<title>$", "</title>\n\t\t\t\t\t</lockup>"]);
 var tmpl = function tmpl(json) {
 	return tmplString(_templateObject, json.arnie.map(function (item) {
 		return tmplString(_templateObject2, item.Poster, item.Title);
@@ -1547,7 +1620,49 @@ var home_view = function (_base_view) {
 	return home_view;
 }(base_view);
 
-function template$2(json) {
+var _this$1 = this;
+
+var _templateObject$1 = babelHelpers.taggedTemplateLiteral(["<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n  <head>\n    <style>\n    .showTextOnHighlight {\n      tv-text-highlight-style: show-on-highlight;\n    }\n    .whiteBadge {\n      tv-tint-color: rgb(255, 255, 255);\n    }\n    .shelfLayout {\n      padding: 20 90 50;\n    }\n    </style>\n  </head>\n  <productTemplate theme=\"light\">\n    <background>\n    </background>\n    <banner>\n      <heroImg src=\"http://ia.media-imdb.com/images/M/MV5BNDg3MDM5NTI0MF5BMl5BanBnXkFtZTcwNDY0NDk0NA@@._V1_SX300.jpg\" />\n      <infoList>\n        <info>\n          <header>\n            <title>Header</title>\n          </header>\n          <text>Text 1</text>\n          <text>Text 2</text>\n          <text>Text 3</text>\n        </info>\n      </infoList>\n      <stack>\n        <title>Title</title>\n        <row>\n          <text>Text 1</text>\n          <text>Text 2</text>\n          <text>Text 3</text>\n        </row>\n        <description allowsZooming=\"true\" template=\"", "templates/AlertWithDescription.xml.js\" presentation=\"modalDialogPresenter\">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</description>\n        <row>\n          <buttonLockup>\n            <badge src=\"resource://button-remove\" class=\"whiteBadge\" />\n            <title>Title 1</title>\n          </buttonLockup>\n          <buttonLockup>\n            <badge src=\"resource://button-add\" class=\"whiteBadge\" />\n            <title>Title 2</title>\n          </buttonLockup>\n          <buttonLockup>\n            <badge src=\"resource://button-cloud\" class=\"whiteBadge\" />\n            <title>Title 3</title>\n          </buttonLockup>\n        </row>\n      </stack>\n    </banner>\n    <shelf>\n      <header>\n        <title>Shelf Header</title>\n      </header>\n      <section>\n        <lockup>\n          <img src=\"http://ia.media-imdb.com/images/M/MV5BNDg3MDM5NTI0MF5BMl5BanBnXkFtZTcwNDY0NDk0NA@@._V1_SX300.jpg\" width=\"150\" height=\"226\" />\n          <title class=\"showTextOnHighlight\">Title 1</title>\n        </lockup>\n        <lockup>\n          <img src=\"http://ia.media-imdb.com/images/M/MV5BNDg3MDM5NTI0MF5BMl5BanBnXkFtZTcwNDY0NDk0NA@@._V1_SX300.jpg\" width=\"150\" height=\"226\" />\n          <title class=\"showTextOnHighlight\">Title 2</title>\n        </lockup>\n      </section>\n    </shelf>\n    <shelf>\n      <header>\n        <title>Title</title>\n      </header>\n      <section>\n        <reviewCard>\n          <badge src=\"resource://button-checkmark\" />\n          <title>Title 1</title>\n          <subtitle>Subtitle 1</subtitle>\n        </reviewCard>\n        <reviewCard>\n          <badge src=\"resource://button-artist\" />\n          <title>Title</title>\n          <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</description>\n        </reviewCard>\n        <reviewCard>\n          <badge src=\"resource://button-follow\" />\n          <subtitle>Subtitle</subtitle>\n          <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</description>\n        </reviewCard>\n      </section>\n    </shelf>\n    <shelf class=\"shelfLayout\">\n      <header>\n        <title>Title</title>\n      </header>\n      <section>\n        <monogramLockup>\n          <monogram firstName=\"Adam\" lastName=\"Gooseff\" />\n          <title>Adam Gooseff</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Ailish\" lastName=\"Kimber\" />\n          <title>Ailish Kimber</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Allen\" lastName=\"Buchinski\" />\n          <title>Allen Buchinski</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Dave\" lastName=\"Elfving\" />\n          <title>Dave Elfving</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Ethan\" lastName=\"Izzarelli\" />\n          <title>Ethan Izzarelli</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Euna\" lastName=\"Kwon\" />\n          <title>Euna Kwon</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Fritz\" lastName=\"Ogden\" />\n          <title>Fritz Ogden</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Gilbert\" lastName=\"Solano\" />\n          <title>Gilbert Solano</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Jamie\" lastName=\"Wong\" />\n          <title>Jamie Wong</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Joyce\" lastName=\"Sihn\" />\n          <title>Joyce Sihn</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Vivian\" lastName=\"Li\" />\n          <title>Vivian Li</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Paul\" lastName=\"Cashman\" />\n          <title>Paul Cashman</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Stephanie\" lastName=\"Vidal\" />\n          <title>Stephanie Vidal</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Yumi\" lastName=\"Asai\" />\n          <title>Yumi Asai</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Rachel\" lastName=\"Roth\" />\n          <title>Rachel Roth</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Mike\" lastName=\"Stern\" />\n          <title>Mike Stern</title>\n        </monogramLockup>\n      </section>\n    </shelf>\n  </productTemplate>\n</document>"], ["<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n  <head>\n    <style>\n    .showTextOnHighlight {\n      tv-text-highlight-style: show-on-highlight;\n    }\n    .whiteBadge {\n      tv-tint-color: rgb(255, 255, 255);\n    }\n    .shelfLayout {\n      padding: 20 90 50;\n    }\n    </style>\n  </head>\n  <productTemplate theme=\"light\">\n    <background>\n    </background>\n    <banner>\n      <heroImg src=\"http://ia.media-imdb.com/images/M/MV5BNDg3MDM5NTI0MF5BMl5BanBnXkFtZTcwNDY0NDk0NA@@._V1_SX300.jpg\" />\n      <infoList>\n        <info>\n          <header>\n            <title>Header</title>\n          </header>\n          <text>Text 1</text>\n          <text>Text 2</text>\n          <text>Text 3</text>\n        </info>\n      </infoList>\n      <stack>\n        <title>Title</title>\n        <row>\n          <text>Text 1</text>\n          <text>Text 2</text>\n          <text>Text 3</text>\n        </row>\n        <description allowsZooming=\"true\" template=\"", "templates/AlertWithDescription.xml.js\" presentation=\"modalDialogPresenter\">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</description>\n        <row>\n          <buttonLockup>\n            <badge src=\"resource://button-remove\" class=\"whiteBadge\" />\n            <title>Title 1</title>\n          </buttonLockup>\n          <buttonLockup>\n            <badge src=\"resource://button-add\" class=\"whiteBadge\" />\n            <title>Title 2</title>\n          </buttonLockup>\n          <buttonLockup>\n            <badge src=\"resource://button-cloud\" class=\"whiteBadge\" />\n            <title>Title 3</title>\n          </buttonLockup>\n        </row>\n      </stack>\n    </banner>\n    <shelf>\n      <header>\n        <title>Shelf Header</title>\n      </header>\n      <section>\n        <lockup>\n          <img src=\"http://ia.media-imdb.com/images/M/MV5BNDg3MDM5NTI0MF5BMl5BanBnXkFtZTcwNDY0NDk0NA@@._V1_SX300.jpg\" width=\"150\" height=\"226\" />\n          <title class=\"showTextOnHighlight\">Title 1</title>\n        </lockup>\n        <lockup>\n          <img src=\"http://ia.media-imdb.com/images/M/MV5BNDg3MDM5NTI0MF5BMl5BanBnXkFtZTcwNDY0NDk0NA@@._V1_SX300.jpg\" width=\"150\" height=\"226\" />\n          <title class=\"showTextOnHighlight\">Title 2</title>\n        </lockup>\n      </section>\n    </shelf>\n    <shelf>\n      <header>\n        <title>Title</title>\n      </header>\n      <section>\n        <reviewCard>\n          <badge src=\"resource://button-checkmark\" />\n          <title>Title 1</title>\n          <subtitle>Subtitle 1</subtitle>\n        </reviewCard>\n        <reviewCard>\n          <badge src=\"resource://button-artist\" />\n          <title>Title</title>\n          <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</description>\n        </reviewCard>\n        <reviewCard>\n          <badge src=\"resource://button-follow\" />\n          <subtitle>Subtitle</subtitle>\n          <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</description>\n        </reviewCard>\n      </section>\n    </shelf>\n    <shelf class=\"shelfLayout\">\n      <header>\n        <title>Title</title>\n      </header>\n      <section>\n        <monogramLockup>\n          <monogram firstName=\"Adam\" lastName=\"Gooseff\" />\n          <title>Adam Gooseff</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Ailish\" lastName=\"Kimber\" />\n          <title>Ailish Kimber</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Allen\" lastName=\"Buchinski\" />\n          <title>Allen Buchinski</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Dave\" lastName=\"Elfving\" />\n          <title>Dave Elfving</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Ethan\" lastName=\"Izzarelli\" />\n          <title>Ethan Izzarelli</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Euna\" lastName=\"Kwon\" />\n          <title>Euna Kwon</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Fritz\" lastName=\"Ogden\" />\n          <title>Fritz Ogden</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Gilbert\" lastName=\"Solano\" />\n          <title>Gilbert Solano</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Jamie\" lastName=\"Wong\" />\n          <title>Jamie Wong</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Joyce\" lastName=\"Sihn\" />\n          <title>Joyce Sihn</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Vivian\" lastName=\"Li\" />\n          <title>Vivian Li</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Paul\" lastName=\"Cashman\" />\n          <title>Paul Cashman</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Stephanie\" lastName=\"Vidal\" />\n          <title>Stephanie Vidal</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Yumi\" lastName=\"Asai\" />\n          <title>Yumi Asai</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Rachel\" lastName=\"Roth\" />\n          <title>Rachel Roth</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Mike\" lastName=\"Stern\" />\n          <title>Mike Stern</title>\n        </monogramLockup>\n      </section>\n    </shelf>\n  </productTemplate>\n</document>"]);
+
+var tmpl$1 = function tmpl(json) {
+  return tmplString(_templateObject$1, _this$1.BASEURL);
+};
+
+var details_view = function (_base_view) {
+	babelHelpers.inherits(details_view, _base_view);
+
+	function details_view(options) {
+		babelHelpers.classCallCheck(this, details_view);
+
+		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(details_view).call(this, options));
+
+		_this.model = movies$1;
+		_this.initialize();
+		return _this;
+	}
+
+	babelHelpers.createClass(details_view, [{
+		key: "initialize",
+		value: function initialize() {
+			this.render();
+		}
+	}, {
+		key: "render",
+		value: function render() {
+			console.log(this.model);
+			this.el = babelHelpers.get(Object.getPrototypeOf(details_view.prototype), "makeDoc", this).call(this, tmpl$1(this.model));
+			return this;
+		}
+	}, {
+		key: "onSelect",
+		value: function onSelect(e) {
+			console.log("select");
+		}
+	}]);
+	return details_view;
+}(base_view);
+
+function template$1(json) {
 	return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n\t<document>\n\t\t<alertTemplate>\n\t\t\t<title>" + json.test + "</title>\n\t\t\t<description>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</description>\n\t\t\t<button videoURL=\"http://techslides.com/demos/sample-videos/small.mp4\">\n\t\t\t\t<text>Button 1</text>\n\t\t\t</button>\n\t\t\t<button videoURL=\"http://static.videezy.com/system/resources/previews/000/004/325/original/49.mp4\">\n\t\t\t\t<text>Button 2</text>\n\t\t\t</button>\n\t\t</alertTemplate>\n\t</document>";
 }
 
@@ -1569,7 +1684,7 @@ var descriptiveAlertView = function () {
 		value: function render() {
 			var json = this.options;
 			console.log(json);
-			this.doc = this.makeDocument(template$2(json));
+			this.doc = this.makeDocument(template$1(json));
 			this.doc.addEventListener("select", function (event) {
 				var ele = event.target,
 				    videoURL = ele.getAttribute("videoURL");
@@ -1602,17 +1717,12 @@ var descriptiveAlertView = function () {
 	return descriptiveAlertView;
 }();
 
-var router = function () {
-	function router(options) {
+var router$1 = function () {
+	function router() {
 		babelHelpers.classCallCheck(this, router);
 
-		if (!options.baseurl) {
-			throw "router: baseurl is required.";
-		}
-
-		this.BASEURL = options.baseurl;
-		this.menuBar = options.menu_bar;
-		this.presenter = new Presenter$1(options.baseurl);
+		this.menuBar = new menu_bar();
+		this.presenter = new Presenter$1();
 	}
 
 	babelHelpers.createClass(router, [{
@@ -1628,13 +1738,27 @@ var router = function () {
 				case "home":
 					self.home();
 					break;
+				case "details":
+					self.details();
+					break;
 			}
 		}
 	}, {
 		key: "home",
 		value: function home() {
-			var homeView = new home_view(this.BASEURL);
-			this.presenter.menuBarItemPresenter(homeView.el, this.menuBar.el.getElementById("home_link"));
+			var homeView = new home_view();
+			console.log(new XMLSerializer().serializeToString(homeView.el));
+
+			var menu_home = this.menuBar.el.getElementById("home");
+			console.log(new XMLSerializer().serializeToString(menu_home));
+
+			this.presenter.menuBarItemPresenter(homeView.el, this.menuBar.el.getElementById("home"));
+		}
+	}, {
+		key: "details",
+		value: function details() {
+			var detailsView = new details_view();
+			this.presenter.defaultPresenter(detailsView.el);
 		}
 	}, {
 		key: "descriptiveAlert",
@@ -1645,72 +1769,18 @@ var router = function () {
 	return router;
 }();
 
-function template() {
-  return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n  <menuBarTemplate>\n    <menuBar>\n      <menuItem href=\"#home\" id=\"home_link\" loadingtext=\"Home\">\n        <title>Home</title>\n      </menuItem>\n      <menuItem href=\"#shop\" id=\"shop_link\" loadingtext=\"Shop\">\n        <title>Shop</title>\n      </menuItem>\n    </menuBar>\n  </menuBarTemplate>\n</document>";
-}
+var router = new router$1();
 
-var menu_bar = function (_base_view) {
-	babelHelpers.inherits(menu_bar, _base_view);
+/*
+Copyright (C) 2015 Apple Inc. All Rights Reserved.
+See LICENSE.txt for this sample’s licensing information
 
-	function menu_bar(options) {
-		babelHelpers.classCallCheck(this, menu_bar);
+Abstract:
+This is the entry point to the application and handles the initial loading of required JavaScript files.
+*/
 
-		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(menu_bar).call(this, options));
-
-		_this.initialize();
-		return _this;
-	}
-
-	babelHelpers.createClass(menu_bar, [{
-		key: "initialize",
-		value: function initialize() {
-			this.render();
-		}
-	}, {
-		key: "render",
-		value: function render() {
-			this.el = babelHelpers.get(Object.getPrototypeOf(menu_bar.prototype), "makeDoc", this).call(this, template());
-			return this;
-		}
-	}, {
-		key: "onSelect",
-		value: function onSelect(event) {
-			console.log("menu_bar select");
-		}
-	}]);
-	return menu_bar;
-}(base_view);
-
-function template$1() {
-	return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n\t<loadingTemplate>\n\t\t<activityIndicator>\n\t\t\t<text>Loading</text>\n\t\t</activityIndicator>\n\t</loadingTemplate>\n</document>";
-}
-
-var loading_modal = function (_base_view) {
-	babelHelpers.inherits(loading_modal, _base_view);
-
-	function loading_modal(options) {
-		babelHelpers.classCallCheck(this, loading_modal);
-
-		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(loading_modal).call(this, options));
-
-		_this.initialize();
-		return _this;
-	}
-
-	babelHelpers.createClass(loading_modal, [{
-		key: "initialize",
-		value: function initialize() {
-			this.render();
-		}
-	}, {
-		key: "render",
-		value: function render() {
-			this.el = babelHelpers.get(Object.getPrototypeOf(loading_modal.prototype), "makeDoc", this).call(this, template$1());
-			return this;
-		}
-	}]);
-	return loading_modal;
-}(base_view);
+// let resourceLoader
+// let presenter
 
 /**
  * @description The onLaunch callback is invoked after the application JavaScript 
@@ -1728,54 +1798,18 @@ App.onLaunch = function (options) {
     //     `${options.BASEURL}js/resource_loader.js`,
     //     `${options.BASEURL}js/prezenter.js`
     // ];
+    // let router = new Router();
+    app_config.baseURL = options.BASEURL;
 
-    /**
-     * evaluateScripts is responsible for loading the JavaScript files neccessary
-     * for you app to run. It can be used at any time in your apps lifecycle.
-     * 
-     * @param - Array of JavaScript URLs  
-     * @param - Function called when the scripts have been evaluated. A boolean is
-     * passed that indicates if the scripts were evaluated successfully.
-     */
-    // evaluateScripts(javascriptFiles, success => {
-    //     if (success) {
-    // resourceLoader = new ResourceLoader(options.BASEURL);
-    var presenter = new Presenter$1(options.BASEURL);
+    var presenter = new Presenter$1();
+    // presenter.showLoadingIndicator();
 
-    // let loadingScreen = new LoadingScreen(options.BASEURL);
-    // presenter.defaultPresenter(loadingScreen.el);
-
-    presenter.showLoadingIndicator();
-
-    var menuBar = new menu_bar(options.BASEURL);
-    presenter.defaultPresenter(menuBar.el);
-
-    var router$$ = new router({ baseurl: options.BASEURL, menu_bar: menuBar });
-
-    router$$.navigate("#home");
-
-    // let index = resourceLoader.loadResource(`${options.BASEURL}templates/Index.xml.js`,
-    //     resource => {
-    //         let doc = presenter.makeDocument(resource);
-    //         // doc.addEventListener("select", presenter.load.bind(presenter));
-    //         doc.addEventListener("select", event => {
-    //             let ele = event.target,
-    //                 viewURL = ele.getAttribute("href");
-    //             console.log(viewURL);
-    //             router.navigate(viewURL);
-    //         });
-    //         navigationDocument.pushDocument(doc);
-    //     });
+    // let menuBar = new MenuBar();
+    // if (presenter.loading_indicator && navigationDocument.documents.indexOf(presenter.loading_indicator) != -1) {
+    //     navigationDocument.replaceDocument(menuBar.el, presenter.loading_indicator);
     // } else {
-    /*
-    Be sure to handle error cases in your code. You should present a readable, and friendly
-    error message to the user in an alert dialog.
-     See alertDialog.xml.js template for details.
-    */
-    // let alert = createAlert("Evaluate Scripts Error", "There was an error attempting to evaluate the external JavaScript files.\n\n Please check your network connection and try again later.");
-    // navigationDocument.presentModal(alert);
-
-    // throw ("Playback Example: unable to evaluate scripts.");
-    //     }
-    // });
+    //     navigationDocument.pushDocument(menuBar.el);
+    // }
+    router.navigate("#home");
+    // presenter.defaultPresenter(menuBar.el);
 };

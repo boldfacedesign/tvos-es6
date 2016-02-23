@@ -2,7 +2,7 @@ import ResourceLoader from "./resource_loader.js"
 
 export default class Presenter {
 	constructor(baseURL) {
-		this.BASEURL = baseURL
+		// this.BASEURL = baseURL
 	}
     /**
      * @description This function demonstrate the default way of present a document. 
@@ -87,6 +87,8 @@ export default class Presenter {
         */
         let feature = ele.parentNode.getFeature("MenuBarDocument");
 
+        console.log(feature)
+
         if (feature) {
             /*
             To retrieve the document associated with the menu bar element, if one has been 
@@ -124,8 +126,8 @@ export default class Presenter {
         let self = this,
             ele = event.target,
             templateURL = ele.getAttribute("template"),
-            presentation = ele.getAttribute("presentation"),
-            resourceLoader = new ResourceLoader(this.BASEURL);;
+            presentation = ele.getAttribute("presentation");
+            // resourceLoader = new ResourceLoader(this.BASEURL);;
 
         /*
         Check if the selected element has a 'template' attribute. If it does then we begin

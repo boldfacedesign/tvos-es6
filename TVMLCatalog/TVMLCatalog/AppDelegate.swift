@@ -59,23 +59,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TVApplicationControllerDe
     
     // MARK: TVApplicationControllerDelegate
     
-    func appController(appController: TVApplicationController, didFinishLaunchingWithOptions options: [String: AnyObject]?) {
-        print("\(__FUNCTION__) invoked with options: \(options)")
-    }
+    // func appController(appController: TVApplicationController, didFinishLaunchingWithOptions options: [String: AnyObject]?) {
+    //     print("\(__FUNCTION__) invoked with options: \(options)")
+    // }
     
-    func appController(appController: TVApplicationController, didFailWithError error: NSError) {
-        print("\(__FUNCTION__) invoked with error: \(error)")
+    // func appController(appController: TVApplicationController, didFailWithError error: NSError) {
+    //     print("\(__FUNCTION__) invoked with error: \(error)")
         
-        let title = "Error Launching Application"
-        let message = error.localizedDescription
-        let alertController = UIAlertController(title: title, message: message, preferredStyle:.Alert )
+    //     let title = "Error Launching Application"
+    //     let message = error.localizedDescription
+    //     let alertController = UIAlertController(title: title, message: message, preferredStyle:.Alert )
         
-        self.appController?.navigationController.presentViewController(alertController, animated: true, completion: { () -> Void in
-            // ...
-        })
-    }
+    //     self.appController?.navigationController.presentViewController(alertController, animated: true, completion: { () -> Void in
+    //         // ...
+    //     })
+    // }
     
-    func appController(appController: TVApplicationController, didStopWithOptions options: [String: AnyObject]?) {
-        print("\(__FUNCTION__) invoked with options: \(options)")
-    }
+    // func appController(appController: TVApplicationController, didStopWithOptions options: [String: AnyObject]?) {
+    //     print("\(__FUNCTION__) invoked with options: \(options)")
+    // }
 }

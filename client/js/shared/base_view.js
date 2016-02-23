@@ -1,17 +1,23 @@
 import Presenter from "../presenter.js"
+// import router from "./shared_router.js"
 
 export default class base_view {
 	constructor (options) {
 		this.options = options;
-		console.log(options);
 		this.parser = new DOMParser();
-		this.presenter = new Presenter(options.BASEURL);
+		this.presenter = new Presenter();
 	}
 	makeDoc(xml) {
-		return this.parser.parseFromString(xml, "application/xml")
+		let doc = this.parser.parseFromString(xml, "application/xml");
+		doc.addEventListener("select", this.onSelect.bind(this));
+		return doc;
 		// return this.presenter.makeDocument(xml)
 	}
-	defaultPresent(doc) {
-		this.presenter.defaultPresenter(doc)
+	onSelect(e) {
+		if (e.target.getAttribute("href")) {
+			// Router
+		} else {
+
+		}
 	}
 }
