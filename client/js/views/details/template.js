@@ -19,37 +19,33 @@ let tmpl = json => tmplString`<?xml version="1.0" encoding="UTF-8" ?>
     <background>
     </background>
     <banner>
-      <heroImg src="http://ia.media-imdb.com/images/M/MV5BNDg3MDM5NTI0MF5BMl5BanBnXkFtZTcwNDY0NDk0NA@@._V1_SX300.jpg" />
+      <heroImg src="${json.Poster}" />
       <infoList>
         <info>
           <header>
-            <title>Header</title>
+            <title>Director</title>
           </header>
-          <text>Text 1</text>
-          <text>Text 2</text>
-          <text>Text 3</text>
+          <text>${json.Director}</text>
+        </info>
+        <info>
+          <header>
+            <title>Actors</title>
+          </header>
+          ${json.Actors.map(actor => tmplString`<text>${actor}</text>`)}
         </info>
       </infoList>
       <stack>
-        <title>Title</title>
+        <title>${json.Title}</title>
         <row>
           <text>Text 1</text>
           <text>Text 2</text>
           <text>Text 3</text>
         </row>
-        <description allowsZooming="true" template="${this.BASEURL}templates/AlertWithDescription.xml.js" presentation="modalDialogPresenter">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</description>
+        <description allowsZooming="true" presentation="modalDialogPresenter">${json.Plot}</description>
         <row>
-          <buttonLockup>
-            <badge src="resource://button-remove" class="whiteBadge" />
-            <title>Title 1</title>
-          </buttonLockup>
-          <buttonLockup>
-            <badge src="resource://button-add" class="whiteBadge" />
-            <title>Title 2</title>
-          </buttonLockup>
-          <buttonLockup>
-            <badge src="resource://button-cloud" class="whiteBadge" />
-            <title>Title 3</title>
+          <buttonLockup id="play_trailer">
+            <badge src="resource://button-play" class="whiteBadge" />
+            <title>Trailer</title>
           </buttonLockup>
         </row>
       </stack>

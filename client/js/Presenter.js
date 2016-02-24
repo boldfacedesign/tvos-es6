@@ -87,8 +87,6 @@ export default class Presenter {
         */
         let feature = ele.parentNode.getFeature("MenuBarDocument");
 
-        console.log(feature)
-
         if (feature) {
             /*
             To retrieve the document associated with the menu bar element, if one has been 
@@ -206,7 +204,6 @@ export default class Presenter {
      * @param {String} presentation - The presentation function name
      */
     showLoadingIndicator(presentation) {
-    	console.log("presenter show loading")
         /*
         You can reuse documents that have previously been created. In this implementation
         we check to see if a loadingIndicator document has already been created. If it 

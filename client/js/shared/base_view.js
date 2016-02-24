@@ -14,10 +14,23 @@ export default class base_view {
 		// return this.presenter.makeDocument(xml)
 	}
 	onSelect(e) {
-		if (e.target.getAttribute("href")) {
-			router.navigate(e.target.getAttribute("href"))
+		let $target = e.target;
+		if ($target.getAttribute("href")) {
+			router.navigate($target.getAttribute("href"))
 		} else {
-			this.select();
+			console.log("base view select delgate")
+			this.select($target);
 		}
+	}
+	playMedia(url) {
+		let player = new Player();
+		let playlist = new Playlist();
+		let mediaItem = new MediaItem("video", url);
+
+		player.playlist = playlist;
+		player.playlist.push(mediaItem);
+		player.present();
+
+		navigationDocument.dismissModal();
 	}
 }

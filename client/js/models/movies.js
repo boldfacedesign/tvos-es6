@@ -20,7 +20,8 @@ export default movies = {
 		  "imdbVotes": "568,980",
 		  "imdbID": "tt0088247",
 		  "Type": "movie",
-		  "Response": "True"
+		  "Response": "True",
+		  "Trailer": "http://pmd.cdn.turner.com/tcm/big/tcmweb/TRAILERS/2013/08/Terminator_TR_177a_24f_mobile-baseline.mp4"
 		},
 		{
 		  "Title": "Terminator 2: Judgment Day",

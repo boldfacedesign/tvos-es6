@@ -15,8 +15,9 @@ export default class router {
 	navigate(url) {
 		let self = this;
 		url = url.replace(/#/, "");
+		let fragment = url.split("/")[0]
 
-		switch (url) {
+		switch (fragment) {
 			case "descriptiveAlert":
 				self.descriptiveAlert();
 				break;
@@ -24,7 +25,7 @@ export default class router {
 				self.home();
 				break;
 			case "details":
-				self.details();
+				self.details(url);
 				break;
 		}
 	}
@@ -37,8 +38,9 @@ export default class router {
 
 		this.presenter.menuBarItemPresenter(homeView.el, this.menuBar.el.getElementById("home"))
 	}
-	details() {
-		let detailsView = new DetailsView();
+	details(url) {
+		let id = url.split("/")[1];
+		let detailsView = new DetailsView({id: id});
 		this.presenter.defaultPresenter(detailsView.el);
 	}
 	descriptiveAlert() {

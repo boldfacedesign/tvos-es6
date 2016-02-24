@@ -16,10 +16,8 @@ export default class menu_bar extends base_view {
 		this.el = super.makeDoc(template());
 
 		if (presenter.loading_indicator && navigationDocument.documents.indexOf(presenter.loading_indicator) != -1) {
-			console.log("menu bar replace");
 			navigationDocument.replaceDocument(this.el, presenter.loading_indicator);
 		} else {
-			console.log("menu bar push");
 			navigationDocument.pushDocument(this.el);
 		}
 
