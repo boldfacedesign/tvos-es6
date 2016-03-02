@@ -16,11 +16,18 @@ export default class base_view {
 	onSelect(e) {
 		let $target = e.target;
 		if ($target.getAttribute("href")) {
-			router.navigate($target.getAttribute("href"))
+			let actor = null;
+			if ($target.getAttribute("actor")) {
+				actor = $target.getAttribute("actor");
+			}
+			router.navigate($target.getAttribute("href"), actor)
 		} else {
 			console.log("base view select delgate")
 			this.select($target);
 		}
+	}
+	select($target) {
+		console.log("No method defined for select event on " + $target)
 	}
 	playMedia(url) {
 		let player = new Player();
@@ -32,5 +39,29 @@ export default class base_view {
 		player.present();
 
 		navigationDocument.dismissModal();
+	}
+	on(event, fn) {
+		this._callbacks = this._callbacks || {};
+		(this._callbacks['$' + event] = this._callbacks['$' + event] || [])
+		.push(fn);
+		return this;
+	}
+	emit(event) {
+		this._callbacks = this._callbacks || {};
+		var args = [].slice.call(arguments, 1),
+		    callbacks = this._callbacks['$' + event];
+
+		if (callbacks) {
+			callbacks = callbacks.slice(0);
+			for (var i = 0, len = callbacks.length; i < len; ++i) {
+				callbacks[i].apply(this, args);
+			}
+		}
+
+		return this;
+	}
+	listeners(event) {
+		this._callbacks = this._callbacks || {};
+		return this._callbacks['$' + event] || [];
 	}
 }

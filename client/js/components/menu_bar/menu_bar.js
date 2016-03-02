@@ -1,6 +1,7 @@
 import base_view from "../../shared/base_view.js"
 import template from "./template.js"
 import Presenter from "../../presenter.js"
+import router from "../../shared/shared_router.js"
 
 let presenter = new Presenter();
 
@@ -24,6 +25,7 @@ export default class menu_bar extends base_view {
 		return this;
 	}
 	onSelect(event) {
-		console.log("menu_bar select");
+		let $target = event.target;
+		router.navigate($target.getAttribute("href"))
 	}
 }

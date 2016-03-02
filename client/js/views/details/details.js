@@ -19,6 +19,44 @@ export default class details_view extends base_view {
 
 		this.movie.Actors = this.movie.Actors.split(",");
 
+		let rating_badge = "resource://bbfc-u";
+
+		switch(this.movie.Rated) {
+			case "R":
+				rating_badge = "resource://bbfc-18";
+				break;
+			case "PG-13":
+				rating_badge = "resource://bbfc-12a";
+				break;
+			case "PG":
+				rating_badge = "resource://bbfc-pg";
+				break;
+			case "PG":
+				rating_badge = "resource://bbfc-pg";
+				break;
+		}
+
+		this.movie.Badge = rating_badge;
+
+		this.movie.Alternatives = [];
+		let alternatives = null;
+
+		switch(this.options.actor) {
+			case "arnie":
+				alternatives = movies.arnie;
+				break;
+			case "cage":
+				alternatives = movies.cage;
+				break;
+		}
+
+		for (let key in alternatives) {
+			let item = alternatives[key];
+			if (alternatives[key].imdbID !== this.options.id) {
+				this.movie.Alternatives.push(alternatives[key])
+			}
+		}
+
 		this.el = super.makeDoc(template(this.movie));
 		return this;
 	}

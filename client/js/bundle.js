@@ -452,11 +452,20 @@ var base_view = function () {
 		value: function onSelect(e) {
 			var $target = e.target;
 			if ($target.getAttribute("href")) {
-				router.navigate($target.getAttribute("href"));
+				var actor = null;
+				if ($target.getAttribute("actor")) {
+					actor = $target.getAttribute("actor");
+				}
+				router.navigate($target.getAttribute("href"), actor);
 			} else {
 				console.log("base view select delgate");
 				this.select($target);
 			}
+		}
+	}, {
+		key: "select",
+		value: function select($target) {
+			console.log("No method defined for select event on " + $target);
 		}
 	}, {
 		key: "playMedia",
@@ -471,12 +480,41 @@ var base_view = function () {
 
 			navigationDocument.dismissModal();
 		}
+	}, {
+		key: "on",
+		value: function on(event, fn) {
+			this._callbacks = this._callbacks || {};
+			(this._callbacks['$' + event] = this._callbacks['$' + event] || []).push(fn);
+			return this;
+		}
+	}, {
+		key: "emit",
+		value: function emit(event) {
+			this._callbacks = this._callbacks || {};
+			var args = [].slice.call(arguments, 1),
+			    callbacks = this._callbacks['$' + event];
+
+			if (callbacks) {
+				callbacks = callbacks.slice(0);
+				for (var i = 0, len = callbacks.length; i < len; ++i) {
+					callbacks[i].apply(this, args);
+				}
+			}
+
+			return this;
+		}
+	}, {
+		key: "listeners",
+		value: function listeners(event) {
+			this._callbacks = this._callbacks || {};
+			return this._callbacks['$' + event] || [];
+		}
 	}]);
 	return base_view;
 }();
 
 function template() {
-  return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n  <menuBarTemplate>\n    <menuBar>\n      <menuItem href=\"#home\" id=\"home\" loadingtext=\"Home\">\n        <title>Movies</title>\n      </menuItem>\n      <menuItem href=\"#shop\" id=\"shop\" loadingtext=\"Shop\">\n        <title>Shop</title>\n      </menuItem>\n    </menuBar>\n  </menuBarTemplate>\n</document>";
+  return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n  <menuBarTemplate>\n    <menuBar>\n      <menuItem href=\"#movies\" id=\"movies\" loadingtext=\"Movies\">\n        <title>Movies</title>\n      </menuItem>\n      <menuItem href=\"#tv_shows\" id=\"tv_shows\" loadingtext=\"Books\">\n        <title>TV Shows</title>\n      </menuItem>\n    </menuBar>\n  </menuBarTemplate>\n</document>";
 }
 
 var presenter = new Presenter$1();
@@ -514,7 +552,8 @@ var menu_bar = function (_base_view) {
 	}, {
 		key: "onSelect",
 		value: function onSelect(event) {
-			console.log("menu_bar select");
+			var $target = event.target;
+			router.navigate($target.getAttribute("href"));
 		}
 	}]);
 	return menu_bar;
@@ -560,18 +599,164 @@ function tmplString(literalSections) {
     // Take care of last literal section
     // (Never fails, because an empty template string
     // produces one literal section, an empty string)
-    result += raw[raw.length - 1]; // (A)
+    result += raw[raw.length - 1];
 
     return result;
 }
 
-var _templateObject = babelHelpers.taggedTemplateLiteral(["<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n\t<head>\n\t\t<style>\n\t\t\t.shelf {\n\t\t\t\ttv-interitem-spacing: 60;\n\t\t\t}\n\t\t</style>\n\t</head>\n\t<stackTemplate>\n\t\t<collectionList>\n\t\t\t<shelf>\n\t\t\t\t<header>\n\t\t\t\t\t<title>Schwarzenegger</title>\n\t\t\t\t</header>\n\t\t\t\t<section>\n\t\t\t\t\t", "\n\t\t\t\t</section>\n\t\t\t</shelf>\n\t\t\t<shelf>\n\t\t\t\t<header>\n\t\t\t\t\t<title>Cage</title>\n\t\t\t\t</header>\n\t\t\t\t<section>\n\t\t\t\t\t", "\n\t\t\t\t</section>\n\t\t\t</shelf>\n\t\t</collectionList>\n\t</stackTemplate>\n</document>"], ["<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n\t<head>\n\t\t<style>\n\t\t\t.shelf {\n\t\t\t\ttv-interitem-spacing: 60;\n\t\t\t}\n\t\t</style>\n\t</head>\n\t<stackTemplate>\n\t\t<collectionList>\n\t\t\t<shelf>\n\t\t\t\t<header>\n\t\t\t\t\t<title>Schwarzenegger</title>\n\t\t\t\t</header>\n\t\t\t\t<section>\n\t\t\t\t\t", "\n\t\t\t\t</section>\n\t\t\t</shelf>\n\t\t\t<shelf>\n\t\t\t\t<header>\n\t\t\t\t\t<title>Cage</title>\n\t\t\t\t</header>\n\t\t\t\t<section>\n\t\t\t\t\t", "\n\t\t\t\t</section>\n\t\t\t</shelf>\n\t\t</collectionList>\n\t</stackTemplate>\n</document>"]);
-var _templateObject2 = babelHelpers.taggedTemplateLiteral(["<lockup href=\"#details/", "\">\n\t\t\t\t\t\t<img src=\"", "\" width=\"300\" height=\"450\" />\n\t\t\t\t\t\t<title>$", "</title>\n\t\t\t\t\t</lockup>"], ["<lockup href=\"#details/", "\">\n\t\t\t\t\t\t<img src=\"", "\" width=\"300\" height=\"450\" />\n\t\t\t\t\t\t<title>$", "</title>\n\t\t\t\t\t</lockup>"]);
+var _templateObject = babelHelpers.taggedTemplateLiteral(["<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n\t<head>\n\t\t<style>\n\t\t\t.shelf {\n\t\t\t\ttv-interitem-spacing: 60;\n\t\t\t}\n\t\t</style>\n\t</head>\n\t<catalogTemplate>\n\t\t<list>\n\t\t\t<section>\n\t\t\t\t<listItemLockup>\n\t\t\t\t\t<title>All TV Shows</title>\n\t\t\t\t\t<relatedContent>\n\t\t\t\t\t\t<grid>\n\t\t\t\t\t\t\t<section>\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</section>\n\t\t\t\t\t\t</grid>\n\t\t\t\t\t</relatedContent>\n\t\t\t\t</listItemLockup>\n\t\t\t</section>\n\t\t</list>\n\t</catalogTemplate>\n</document>"], ["<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n\t<head>\n\t\t<style>\n\t\t\t.shelf {\n\t\t\t\ttv-interitem-spacing: 60;\n\t\t\t}\n\t\t</style>\n\t</head>\n\t<catalogTemplate>\n\t\t<list>\n\t\t\t<section>\n\t\t\t\t<listItemLockup>\n\t\t\t\t\t<title>All TV Shows</title>\n\t\t\t\t\t<relatedContent>\n\t\t\t\t\t\t<grid>\n\t\t\t\t\t\t\t<section>\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</section>\n\t\t\t\t\t\t</grid>\n\t\t\t\t\t</relatedContent>\n\t\t\t\t</listItemLockup>\n\t\t\t</section>\n\t\t</list>\n\t</catalogTemplate>\n</document>"]);
+var _templateObject2 = babelHelpers.taggedTemplateLiteral(["<lockup href=\"#tv_details/", "\">\n\t\t\t\t\t\t\t\t\t<img src=\"", "\" width=\"300\" height=\"450\" />\n\t\t\t\t\t\t\t\t\t<title>$", "</title>\n\t\t\t\t\t\t\t\t</lockup>"], ["<lockup href=\"#tv_details/", "\">\n\t\t\t\t\t\t\t\t\t<img src=\"", "\" width=\"300\" height=\"450\" />\n\t\t\t\t\t\t\t\t\t<title>$", "</title>\n\t\t\t\t\t\t\t\t</lockup>"]);
 var tmpl = function tmpl(json) {
-	return tmplString(_templateObject, json.arnie.map(function (item) {
-		return tmplString(_templateObject2, item.imdbID, item.Poster, item.Title);
+	return tmplString(_templateObject, json.results.map(function (item) {
+		return tmplString(_templateObject2, item.id, 'http://image.tmdb.org/t/p/w500' + item.poster_path, item.name);
+	}));
+};
+
+var base_model = function () {
+	function base_model() {
+		babelHelpers.classCallCheck(this, base_model);
+	}
+
+	babelHelpers.createClass(base_model, [{
+		key: 'consrtructor',
+		value: function consrtructor() {
+			this._type = "model";
+		}
+	}, {
+		key: 'on',
+		value: function on(event, fn) {
+			this._callbacks = this._callbacks || {};
+			(this._callbacks['$' + event] = this._callbacks['$' + event] || []).push(fn);
+			return this;
+		}
+	}, {
+		key: 'emit',
+		value: function emit(event) {
+			this._callbacks = this._callbacks || {};
+			var args = [].slice.call(arguments, 1),
+			    callbacks = this._callbacks['$' + event];
+
+			if (callbacks) {
+				callbacks = callbacks.slice(0);
+				for (var i = 0, len = callbacks.length; i < len; ++i) {
+					callbacks[i].apply(this, args);
+				}
+			}
+
+			return this;
+		}
+	}, {
+		key: 'listeners',
+		value: function listeners(event) {
+			this._callbacks = this._callbacks || {};
+			return this._callbacks['$' + event] || [];
+		}
+	}]);
+	return base_model;
+}();
+
+var BooksModel = function (_base_model) {
+	babelHelpers.inherits(BooksModel, _base_model);
+
+	function BooksModel() {
+		babelHelpers.classCallCheck(this, BooksModel);
+
+		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(BooksModel).call(this));
+
+		_this.url = "https://api.themoviedb.org/3/tv/popular?api_key=cad193d8b6b642176344ffe8d4219062";
+		_this.type = "books";
+		_this.initialize();
+		return _this;
+	}
+
+	babelHelpers.createClass(BooksModel, [{
+		key: "initialize",
+		value: function initialize() {}
+	}, {
+		key: "fetch",
+		value: function fetch(options) {
+			var self = this;
+			var callback = function callback(err, data) {
+				console.log("options.callback was missing for this request");
+			};
+			if (options) {
+				var headers = options.headers || {};
+				var callback = options.callback;
+			}
+			var xhr = new XMLHttpRequest();
+			xhr.responseType = 'json';
+			xhr.onreadystatechange = function () {
+				try {
+					if (xhr.readyState === 4) {
+						if (xhr.status === 200) {
+							self.json = JSON.parse(xhr.responseText);
+							self.emit("sync");
+						} else {
+							// callback(new Error("Error [" + xhr.status + "] making http request: " + this.url));
+						}
+					}
+				} catch (err) {
+					console.error('Aborting request ' + this.url + '. Error: ' + err);
+					xhr.abort();
+					// callback(new Error("Error making request to: " + this.url + " error: " + err));
+				}
+			};
+			xhr.open("GET", this.url, true);
+			xhr.send();
+
+			return xhr;
+		}
+	}]);
+	return BooksModel;
+}(base_model);
+
+var tv_shows_view = function (_base_view) {
+	babelHelpers.inherits(tv_shows_view, _base_view);
+
+	function tv_shows_view(options) {
+		babelHelpers.classCallCheck(this, tv_shows_view);
+
+		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(tv_shows_view).call(this, options));
+
+		_this.model = new BooksModel();
+		_this.initialize();
+		return _this;
+	}
+
+	babelHelpers.createClass(tv_shows_view, [{
+		key: "initialize",
+		value: function initialize() {
+			var self = this;
+			this.model.on("sync", function () {
+				self.render();
+			});
+			this.model.fetch();
+		}
+	}, {
+		key: "render",
+		value: function render() {
+			console.log(this.model.json);
+			this.el = babelHelpers.get(Object.getPrototypeOf(tv_shows_view.prototype), "makeDoc", this).call(this, tmpl(this.model.json));
+			// console.log(new XMLSerializer().serializeToString(this.el))
+			this.emit("rendered");
+		}
+	}, {
+		key: "select",
+		value: function select(e) {
+			console.log(e.target);
+		}
+	}]);
+	return tv_shows_view;
+}(base_view);
+
+var _templateObject$1 = babelHelpers.taggedTemplateLiteral(["<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n\t<head>\n\t\t<style>\n\t\t\t.shelf {\n\t\t\t\ttv-interitem-spacing: 60;\n\t\t\t}\n\t\t</style>\n\t</head>\n\t<stackTemplate>\n\t\t<collectionList>\n\t\t\t<shelf>\n\t\t\t\t<header>\n\t\t\t\t\t<title>Schwarzenegger</title>\n\t\t\t\t</header>\n\t\t\t\t<section>\n\t\t\t\t\t", "\n\t\t\t\t</section>\n\t\t\t</shelf>\n\t\t\t<shelf>\n\t\t\t\t<header>\n\t\t\t\t\t<title>Cage</title>\n\t\t\t\t</header>\n\t\t\t\t<section>\n\t\t\t\t\t", "\n\t\t\t\t</section>\n\t\t\t</shelf>\n\t\t</collectionList>\n\t</stackTemplate>\n</document>"], ["<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n\t<head>\n\t\t<style>\n\t\t\t.shelf {\n\t\t\t\ttv-interitem-spacing: 60;\n\t\t\t}\n\t\t</style>\n\t</head>\n\t<stackTemplate>\n\t\t<collectionList>\n\t\t\t<shelf>\n\t\t\t\t<header>\n\t\t\t\t\t<title>Schwarzenegger</title>\n\t\t\t\t</header>\n\t\t\t\t<section>\n\t\t\t\t\t", "\n\t\t\t\t</section>\n\t\t\t</shelf>\n\t\t\t<shelf>\n\t\t\t\t<header>\n\t\t\t\t\t<title>Cage</title>\n\t\t\t\t</header>\n\t\t\t\t<section>\n\t\t\t\t\t", "\n\t\t\t\t</section>\n\t\t\t</shelf>\n\t\t</collectionList>\n\t</stackTemplate>\n</document>"]);
+var _templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<lockup href=\"#details/", "\" actor=\"arnie\">\n\t\t\t\t\t\t<img src=\"", "\" width=\"300\" height=\"450\" />\n\t\t\t\t\t\t<title>$", "</title>\n\t\t\t\t\t</lockup>"], ["<lockup href=\"#details/", "\" actor=\"arnie\">\n\t\t\t\t\t\t<img src=\"", "\" width=\"300\" height=\"450\" />\n\t\t\t\t\t\t<title>$", "</title>\n\t\t\t\t\t</lockup>"]);
+var _templateObject3 = babelHelpers.taggedTemplateLiteral(["<lockup href=\"#details/", "\" actor=\"cage\">\n\t\t\t\t\t\t<img src=\"", "\" width=\"300\" height=\"450\" />\n\t\t\t\t\t\t<title>$", "</title>\n\t\t\t\t\t</lockup>"], ["<lockup href=\"#details/", "\" actor=\"cage\">\n\t\t\t\t\t\t<img src=\"", "\" width=\"300\" height=\"450\" />\n\t\t\t\t\t\t<title>$", "</title>\n\t\t\t\t\t</lockup>"]);
+var tmpl$1 = function tmpl(json) {
+	return tmplString(_templateObject$1, json.arnie.map(function (item) {
+		return tmplString(_templateObject2$1, item.imdbID, item.Poster, item.Title);
 	}), json.cage.map(function (item) {
-		return tmplString(_templateObject2, item.imdbID, item.Poster, item.Title);
+		return tmplString(_templateObject3, item.imdbID, item.Poster, item.Title);
 	}));
 };
 
@@ -1610,20 +1795,20 @@ var movies$1 = movies = {
 	}]
 };
 
-var home_view = function (_base_view) {
-	babelHelpers.inherits(home_view, _base_view);
+var movies_view = function (_base_view) {
+	babelHelpers.inherits(movies_view, _base_view);
 
-	function home_view(options) {
-		babelHelpers.classCallCheck(this, home_view);
+	function movies_view(options) {
+		babelHelpers.classCallCheck(this, movies_view);
 
-		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(home_view).call(this, options));
+		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(movies_view).call(this, options));
 
 		_this.model = movies$1;
 		_this.initialize();
 		return _this;
 	}
 
-	babelHelpers.createClass(home_view, [{
+	babelHelpers.createClass(movies_view, [{
 		key: "initialize",
 		value: function initialize() {
 			this.render();
@@ -1632,7 +1817,7 @@ var home_view = function (_base_view) {
 		key: "render",
 		value: function render() {
 			console.log(this.model);
-			this.el = babelHelpers.get(Object.getPrototypeOf(home_view.prototype), "makeDoc", this).call(this, tmpl(this.model));
+			this.el = babelHelpers.get(Object.getPrototypeOf(movies_view.prototype), "makeDoc", this).call(this, tmpl$1(this.model));
 			return this;
 		}
 	}, {
@@ -1641,15 +1826,18 @@ var home_view = function (_base_view) {
 			console.log(e.target);
 		}
 	}]);
-	return home_view;
+	return movies_view;
 }(base_view);
 
-var _templateObject$1 = babelHelpers.taggedTemplateLiteral(["<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n  <head>\n    <style>\n    .showTextOnHighlight {\n      tv-text-highlight-style: show-on-highlight;\n    }\n    .whiteBadge {\n      tv-tint-color: rgb(255, 255, 255);\n    }\n    .shelfLayout {\n      padding: 20 90 50;\n    }\n    </style>\n  </head>\n  <productTemplate theme=\"light\">\n    <background>\n    </background>\n    <banner>\n      <heroImg src=\"", "\" />\n      <infoList>\n        <info>\n          <header>\n            <title>Director</title>\n          </header>\n          <text>", "</text>\n        </info>\n        <info>\n          <header>\n            <title>Actors</title>\n          </header>\n          ", "\n        </info>\n      </infoList>\n      <stack>\n        <title>", "</title>\n        <row>\n          <text>Text 1</text>\n          <text>Text 2</text>\n          <text>Text 3</text>\n        </row>\n        <description allowsZooming=\"true\" presentation=\"modalDialogPresenter\">", "</description>\n        <row>\n          <buttonLockup id=\"play_trailer\">\n            <badge src=\"resource://button-play\" class=\"whiteBadge\" />\n            <title>Trailer</title>\n          </buttonLockup>\n        </row>\n      </stack>\n    </banner>\n    <shelf>\n      <header>\n        <title>Shelf Header</title>\n      </header>\n      <section>\n        <lockup>\n          <img src=\"http://ia.media-imdb.com/images/M/MV5BNDg3MDM5NTI0MF5BMl5BanBnXkFtZTcwNDY0NDk0NA@@._V1_SX300.jpg\" width=\"150\" height=\"226\" />\n          <title class=\"showTextOnHighlight\">Title 1</title>\n        </lockup>\n        <lockup>\n          <img src=\"http://ia.media-imdb.com/images/M/MV5BNDg3MDM5NTI0MF5BMl5BanBnXkFtZTcwNDY0NDk0NA@@._V1_SX300.jpg\" width=\"150\" height=\"226\" />\n          <title class=\"showTextOnHighlight\">Title 2</title>\n        </lockup>\n      </section>\n    </shelf>\n    <shelf>\n      <header>\n        <title>Title</title>\n      </header>\n      <section>\n        <reviewCard>\n          <badge src=\"resource://button-checkmark\" />\n          <title>Title 1</title>\n          <subtitle>Subtitle 1</subtitle>\n        </reviewCard>\n        <reviewCard>\n          <badge src=\"resource://button-artist\" />\n          <title>Title</title>\n          <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</description>\n        </reviewCard>\n        <reviewCard>\n          <badge src=\"resource://button-follow\" />\n          <subtitle>Subtitle</subtitle>\n          <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</description>\n        </reviewCard>\n      </section>\n    </shelf>\n    <shelf class=\"shelfLayout\">\n      <header>\n        <title>Title</title>\n      </header>\n      <section>\n        <monogramLockup>\n          <monogram firstName=\"Adam\" lastName=\"Gooseff\" />\n          <title>Adam Gooseff</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Ailish\" lastName=\"Kimber\" />\n          <title>Ailish Kimber</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Allen\" lastName=\"Buchinski\" />\n          <title>Allen Buchinski</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Dave\" lastName=\"Elfving\" />\n          <title>Dave Elfving</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Ethan\" lastName=\"Izzarelli\" />\n          <title>Ethan Izzarelli</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Euna\" lastName=\"Kwon\" />\n          <title>Euna Kwon</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Fritz\" lastName=\"Ogden\" />\n          <title>Fritz Ogden</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Gilbert\" lastName=\"Solano\" />\n          <title>Gilbert Solano</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Jamie\" lastName=\"Wong\" />\n          <title>Jamie Wong</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Joyce\" lastName=\"Sihn\" />\n          <title>Joyce Sihn</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Vivian\" lastName=\"Li\" />\n          <title>Vivian Li</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Paul\" lastName=\"Cashman\" />\n          <title>Paul Cashman</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Stephanie\" lastName=\"Vidal\" />\n          <title>Stephanie Vidal</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Yumi\" lastName=\"Asai\" />\n          <title>Yumi Asai</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Rachel\" lastName=\"Roth\" />\n          <title>Rachel Roth</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Mike\" lastName=\"Stern\" />\n          <title>Mike Stern</title>\n        </monogramLockup>\n      </section>\n    </shelf>\n  </productTemplate>\n</document>"], ["<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n  <head>\n    <style>\n    .showTextOnHighlight {\n      tv-text-highlight-style: show-on-highlight;\n    }\n    .whiteBadge {\n      tv-tint-color: rgb(255, 255, 255);\n    }\n    .shelfLayout {\n      padding: 20 90 50;\n    }\n    </style>\n  </head>\n  <productTemplate theme=\"light\">\n    <background>\n    </background>\n    <banner>\n      <heroImg src=\"", "\" />\n      <infoList>\n        <info>\n          <header>\n            <title>Director</title>\n          </header>\n          <text>", "</text>\n        </info>\n        <info>\n          <header>\n            <title>Actors</title>\n          </header>\n          ", "\n        </info>\n      </infoList>\n      <stack>\n        <title>", "</title>\n        <row>\n          <text>Text 1</text>\n          <text>Text 2</text>\n          <text>Text 3</text>\n        </row>\n        <description allowsZooming=\"true\" presentation=\"modalDialogPresenter\">", "</description>\n        <row>\n          <buttonLockup id=\"play_trailer\">\n            <badge src=\"resource://button-play\" class=\"whiteBadge\" />\n            <title>Trailer</title>\n          </buttonLockup>\n        </row>\n      </stack>\n    </banner>\n    <shelf>\n      <header>\n        <title>Shelf Header</title>\n      </header>\n      <section>\n        <lockup>\n          <img src=\"http://ia.media-imdb.com/images/M/MV5BNDg3MDM5NTI0MF5BMl5BanBnXkFtZTcwNDY0NDk0NA@@._V1_SX300.jpg\" width=\"150\" height=\"226\" />\n          <title class=\"showTextOnHighlight\">Title 1</title>\n        </lockup>\n        <lockup>\n          <img src=\"http://ia.media-imdb.com/images/M/MV5BNDg3MDM5NTI0MF5BMl5BanBnXkFtZTcwNDY0NDk0NA@@._V1_SX300.jpg\" width=\"150\" height=\"226\" />\n          <title class=\"showTextOnHighlight\">Title 2</title>\n        </lockup>\n      </section>\n    </shelf>\n    <shelf>\n      <header>\n        <title>Title</title>\n      </header>\n      <section>\n        <reviewCard>\n          <badge src=\"resource://button-checkmark\" />\n          <title>Title 1</title>\n          <subtitle>Subtitle 1</subtitle>\n        </reviewCard>\n        <reviewCard>\n          <badge src=\"resource://button-artist\" />\n          <title>Title</title>\n          <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</description>\n        </reviewCard>\n        <reviewCard>\n          <badge src=\"resource://button-follow\" />\n          <subtitle>Subtitle</subtitle>\n          <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</description>\n        </reviewCard>\n      </section>\n    </shelf>\n    <shelf class=\"shelfLayout\">\n      <header>\n        <title>Title</title>\n      </header>\n      <section>\n        <monogramLockup>\n          <monogram firstName=\"Adam\" lastName=\"Gooseff\" />\n          <title>Adam Gooseff</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Ailish\" lastName=\"Kimber\" />\n          <title>Ailish Kimber</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Allen\" lastName=\"Buchinski\" />\n          <title>Allen Buchinski</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Dave\" lastName=\"Elfving\" />\n          <title>Dave Elfving</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Ethan\" lastName=\"Izzarelli\" />\n          <title>Ethan Izzarelli</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Euna\" lastName=\"Kwon\" />\n          <title>Euna Kwon</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Fritz\" lastName=\"Ogden\" />\n          <title>Fritz Ogden</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Gilbert\" lastName=\"Solano\" />\n          <title>Gilbert Solano</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Jamie\" lastName=\"Wong\" />\n          <title>Jamie Wong</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Joyce\" lastName=\"Sihn\" />\n          <title>Joyce Sihn</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Vivian\" lastName=\"Li\" />\n          <title>Vivian Li</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Paul\" lastName=\"Cashman\" />\n          <title>Paul Cashman</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Stephanie\" lastName=\"Vidal\" />\n          <title>Stephanie Vidal</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Yumi\" lastName=\"Asai\" />\n          <title>Yumi Asai</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Rachel\" lastName=\"Roth\" />\n          <title>Rachel Roth</title>\n        </monogramLockup>\n        <monogramLockup>\n          <monogram firstName=\"Mike\" lastName=\"Stern\" />\n          <title>Mike Stern</title>\n        </monogramLockup>\n      </section>\n    </shelf>\n  </productTemplate>\n</document>"]);
-var _templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<text>", "</text>"], ["<text>", "</text>"]);
-var tmpl$1 = function tmpl(json) {
-  return tmplString(_templateObject$1, json.Poster, json.Director, json.Actors.map(function (actor) {
-    return tmplString(_templateObject2$1, actor);
-  }), json.Title, json.Plot);
+var _templateObject$2 = babelHelpers.taggedTemplateLiteral(["<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n  <head>\n    <style>\n    .showTextOnHighlight {\n      tv-text-highlight-style: show-on-highlight;\n    }\n    .whiteBadge {\n      tv-tint-color: rgb(255, 255, 255);\n    }\n    .shelfLayout {\n      padding: 20 90 50;\n    }\n    </style>\n  </head>\n  <productTemplate theme=\"light\">\n    <background>\n    </background>\n    <banner>\n      <heroImg src=\"", "\" />\n      <infoList>\n        <info>\n          <header>\n            <title>Director</title>\n          </header>\n          <text>", "</text>\n        </info>\n        <info>\n          <header>\n            <title>Actors</title>\n          </header>\n          ", "\n        </info>\n      </infoList>\n      <stack>\n        <title>", "</title>\n        <row>\n          <text>", "   |</text>\n          <text>", "   |</text>\n          <img src=\"", "\" width=\"45\" height=\"45\" /><text>|   </text>\n          <text>User rating: ", "</text>\n        </row>\n        <description allowsZooming=\"true\" presentation=\"modalDialogPresenter\">", "</description>\n        <row>\n          <buttonLockup id=\"play_trailer\">\n            <badge src=\"resource://button-preview\" class=\"whiteBadge\" />\n            <title>Trailer</title>\n          </buttonLockup>\n          <buttonLockup id=\"play_main_asset\">\n            <badge src=\"resource://button-play\" class=\"whiteBadge\" />\n            <title>Watch</title>\n          </buttonLockup>\n        </row>\n      </stack>\n    </banner>\n    <shelf>\n      <header>\n        <title>You may also like</title>\n      </header>\n      <section>\n        ", "\n      </section>\n    </shelf>\n  </productTemplate>\n</document>"], ["<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n  <head>\n    <style>\n    .showTextOnHighlight {\n      tv-text-highlight-style: show-on-highlight;\n    }\n    .whiteBadge {\n      tv-tint-color: rgb(255, 255, 255);\n    }\n    .shelfLayout {\n      padding: 20 90 50;\n    }\n    </style>\n  </head>\n  <productTemplate theme=\"light\">\n    <background>\n    </background>\n    <banner>\n      <heroImg src=\"", "\" />\n      <infoList>\n        <info>\n          <header>\n            <title>Director</title>\n          </header>\n          <text>", "</text>\n        </info>\n        <info>\n          <header>\n            <title>Actors</title>\n          </header>\n          ", "\n        </info>\n      </infoList>\n      <stack>\n        <title>", "</title>\n        <row>\n          <text>", "   |</text>\n          <text>", "   |</text>\n          <img src=\"", "\" width=\"45\" height=\"45\" /><text>|   </text>\n          <text>User rating: ", "</text>\n        </row>\n        <description allowsZooming=\"true\" presentation=\"modalDialogPresenter\">", "</description>\n        <row>\n          <buttonLockup id=\"play_trailer\">\n            <badge src=\"resource://button-preview\" class=\"whiteBadge\" />\n            <title>Trailer</title>\n          </buttonLockup>\n          <buttonLockup id=\"play_main_asset\">\n            <badge src=\"resource://button-play\" class=\"whiteBadge\" />\n            <title>Watch</title>\n          </buttonLockup>\n        </row>\n      </stack>\n    </banner>\n    <shelf>\n      <header>\n        <title>You may also like</title>\n      </header>\n      <section>\n        ", "\n      </section>\n    </shelf>\n  </productTemplate>\n</document>"]);
+var _templateObject2$2 = babelHelpers.taggedTemplateLiteral(["<text>", "</text>"], ["<text>", "</text>"]);
+var _templateObject3$1 = babelHelpers.taggedTemplateLiteral(["<lockup href=\"#details/", "\">\n            <img src=\"", "\" width=\"243\" height=\"365\" />\n            <title>$", "</title>\n          </lockup>"], ["<lockup href=\"#details/", "\">\n            <img src=\"", "\" width=\"243\" height=\"365\" />\n            <title>$", "</title>\n          </lockup>"]);
+var tmpl$2 = function tmpl(json) {
+  return tmplString(_templateObject$2, json.Poster, json.Director, json.Actors.map(function (actor) {
+    return tmplString(_templateObject2$2, actor);
+  }), json.Title, json.Year, json.Runtime, json.Badge, json.imdbRating, json.Plot, json.Alternatives.map(function (item) {
+    return tmplString(_templateObject3$1, item.imdbID, item.Poster, item.Title);
+  }));
 };
 
 /**
@@ -4204,7 +4392,45 @@ var details_view = function (_base_view) {
 
 			this.movie.Actors = this.movie.Actors.split(",");
 
-			this.el = babelHelpers.get(Object.getPrototypeOf(details_view.prototype), "makeDoc", this).call(this, tmpl$1(this.movie));
+			var rating_badge = "resource://bbfc-u";
+
+			switch (this.movie.Rated) {
+				case "R":
+					rating_badge = "resource://bbfc-18";
+					break;
+				case "PG-13":
+					rating_badge = "resource://bbfc-12a";
+					break;
+				case "PG":
+					rating_badge = "resource://bbfc-pg";
+					break;
+				case "PG":
+					rating_badge = "resource://bbfc-pg";
+					break;
+			}
+
+			this.movie.Badge = rating_badge;
+
+			this.movie.Alternatives = [];
+			var alternatives = null;
+
+			switch (this.options.actor) {
+				case "arnie":
+					alternatives = movies$1.arnie;
+					break;
+				case "cage":
+					alternatives = movies$1.cage;
+					break;
+			}
+
+			for (var key in alternatives) {
+				var item = alternatives[key];
+				if (alternatives[key].imdbID !== this.options.id) {
+					this.movie.Alternatives.push(alternatives[key]);
+				}
+			}
+
+			this.el = babelHelpers.get(Object.getPrototypeOf(details_view.prototype), "makeDoc", this).call(this, tmpl$2(this.movie));
 			return this;
 		}
 	}, {
@@ -4219,6 +4445,120 @@ var details_view = function (_base_view) {
 		}
 	}]);
 	return details_view;
+}(base_view);
+
+var _templateObject$3 = babelHelpers.taggedTemplateLiteral(['<?xml version="1.0" encoding="UTF-8" ?>\n<document>\n  <head>\n    <style>\n    .showTextOnHighlight {\n      tv-text-highlight-style: show-on-highlight;\n    }\n    .whiteBadge {\n      tv-tint-color: rgb(255, 255, 255);\n    }\n    .shelfLayout {\n      padding: 20 90 50;\n    }\n    </style>\n  </head>\n  <productBundleTemplate theme="light">\n    <background>\n    </background>\n    <banner>\n      <heroImg src="', '" />\n      <stack>\n        <title>', '</title>\n        <row>\n          <text>English   |</text>\n          ', '\n        </row>\n        <row>\n          <text>Created By:</text>\n        </row>\n        <row>\n          ', '\n        </row>\n        <description allowsZooming="true" presentation="modalDialogPresenter">', '</description>\n        <row>\n          <buttonLockup id="play_trailer">\n            <badge src="resource://button-preview" class="whiteBadge" />\n            <title>Trailer</title>\n          </buttonLockup>\n          <buttonLockup id="play_main_asset">\n            <badge src="resource://button-play" class="whiteBadge" />\n            <title>Watch</title>\n          </buttonLockup>\n        </row>\n      </stack>\n    </banner>\n    <shelf>\n      <header>\n        <title>More Seasons</title>\n      </header>\n      <section>\n        ', '\n      </section>\n    </shelf>\n  </productBundleTemplate>\n</document>'], ['<?xml version="1.0" encoding="UTF-8" ?>\n<document>\n  <head>\n    <style>\n    .showTextOnHighlight {\n      tv-text-highlight-style: show-on-highlight;\n    }\n    .whiteBadge {\n      tv-tint-color: rgb(255, 255, 255);\n    }\n    .shelfLayout {\n      padding: 20 90 50;\n    }\n    </style>\n  </head>\n  <productBundleTemplate theme="light">\n    <background>\n    </background>\n    <banner>\n      <heroImg src="', '" />\n      <stack>\n        <title>', '</title>\n        <row>\n          <text>English   |</text>\n          ', '\n        </row>\n        <row>\n          <text>Created By:</text>\n        </row>\n        <row>\n          ', '\n        </row>\n        <description allowsZooming="true" presentation="modalDialogPresenter">', '</description>\n        <row>\n          <buttonLockup id="play_trailer">\n            <badge src="resource://button-preview" class="whiteBadge" />\n            <title>Trailer</title>\n          </buttonLockup>\n          <buttonLockup id="play_main_asset">\n            <badge src="resource://button-play" class="whiteBadge" />\n            <title>Watch</title>\n          </buttonLockup>\n        </row>\n      </stack>\n    </banner>\n    <shelf>\n      <header>\n        <title>More Seasons</title>\n      </header>\n      <section>\n        ', '\n      </section>\n    </shelf>\n  </productBundleTemplate>\n</document>']);
+var _templateObject2$3 = babelHelpers.taggedTemplateLiteral(['<text>', ',</text>'], ['<text>', ',</text>']);
+var _templateObject3$2 = babelHelpers.taggedTemplateLiteral(['<text>', ', </text>'], ['<text>', ', </text>']);
+var _templateObject4 = babelHelpers.taggedTemplateLiteral(['<lockup>\n          <img src="', '" width="300" height="450" />\n          <title>', '</title>\n          </lockup>'], ['<lockup>\n          <img src="', '" width="300" height="450" />\n          <title>', '</title>\n          </lockup>']);
+var tmpl$3 = function tmpl(json) {
+  return tmplString(_templateObject$3, 'http://image.tmdb.org/t/p/w500' + json.backdrop_path, json.name, json.genres.map(function (genre) {
+    return tmplString(_templateObject2$3, genre.name);
+  }), json.created_by.map(function (person) {
+    return tmplString(_templateObject3$2, person.name);
+  }), json.overview, json.seasons.map(function (season) {
+    return tmplString(_templateObject4, 'http://image.tmdb.org/t/p/w500' + season.poster_path, 'Season ' + season.season_number);
+  }));
+};
+
+var TVShowDetailsModel = function (_base_model) {
+	babelHelpers.inherits(TVShowDetailsModel, _base_model);
+
+	function TVShowDetailsModel(options) {
+		babelHelpers.classCallCheck(this, TVShowDetailsModel);
+
+		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(TVShowDetailsModel).call(this));
+
+		_this.url = "https://api.themoviedb.org/3/tv/" + options.id + "?api_key=cad193d8b6b642176344ffe8d4219062";
+		_this.type = "tv_details";
+		_this.initialize();
+		return _this;
+	}
+
+	babelHelpers.createClass(TVShowDetailsModel, [{
+		key: "initialize",
+		value: function initialize() {}
+	}, {
+		key: "fetch",
+		value: function fetch(options) {
+			var self = this;
+			var callback = function callback(err, data) {
+				console.log("options.callback was missing for this request");
+			};
+			if (options) {
+				var headers = options.headers || {};
+				var callback = options.callback;
+			}
+			var xhr = new XMLHttpRequest();
+			xhr.responseType = 'json';
+			xhr.onreadystatechange = function () {
+				try {
+					if (xhr.readyState === 4) {
+						if (xhr.status === 200) {
+							self.json = JSON.parse(xhr.responseText);
+							self.emit("sync");
+						} else {
+							// callback(new Error("Error [" + xhr.status + "] making http request: " + this.url));
+						}
+					}
+				} catch (err) {
+					console.error('Aborting request ' + this.url + '. Error: ' + err);
+					xhr.abort();
+					// callback(new Error("Error making request to: " + this.url + " error: " + err));
+				}
+			};
+			xhr.open("GET", this.url, true);
+			xhr.send();
+
+			return xhr;
+		}
+	}]);
+	return TVShowDetailsModel;
+}(base_model);
+
+var tv_details_view = function (_base_view) {
+	babelHelpers.inherits(tv_details_view, _base_view);
+
+	function tv_details_view(options) {
+		babelHelpers.classCallCheck(this, tv_details_view);
+
+		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(tv_details_view).call(this, options));
+
+		_this.model = new TVShowDetailsModel({ id: options.id });
+		_this.initialize();
+		return _this;
+	}
+
+	babelHelpers.createClass(tv_details_view, [{
+		key: "initialize",
+		value: function initialize() {
+			var self = this;
+			this.model.on("sync", function () {
+				self.render();
+			});
+			this.model.fetch();
+		}
+	}, {
+		key: "render",
+		value: function render() {
+			console.log(this.model.json);
+
+			this.el = babelHelpers.get(Object.getPrototypeOf(tv_details_view.prototype), "makeDoc", this).call(this, tmpl$3(this.model.json));
+			this.emit("rendered");
+			return this;
+		}
+	}, {
+		key: "select",
+		value: function select($target) {
+			if ($target.getAttribute("id") === "play_trailer") {
+				if (this.movie.Trailer) {
+					this.playMedia(this.movie.Trailer);
+				}
+			}
+			console.log("select");
+		}
+	}]);
+	return tv_details_view;
 }(base_view);
 
 function template$1(json) {
@@ -4286,7 +4626,7 @@ var router$1 = function () {
 
 	babelHelpers.createClass(router, [{
 		key: "navigate",
-		value: function navigate(url) {
+		value: function navigate(url, actor) {
 			var self = this;
 			url = url.replace(/#/, "");
 			var fragment = url.split("/")[0];
@@ -4295,31 +4635,59 @@ var router$1 = function () {
 				case "descriptiveAlert":
 					self.descriptiveAlert();
 					break;
-				case "home":
-					self.home();
+				case "movies":
+					self.movies();
+					break;
+				case "tv_shows":
+					self.tv_shows();
 					break;
 				case "details":
-					self.details(url);
+					self.details(url, actor);
+					break;
+				case "tv_details":
+					self.tv_details(url);
 					break;
 			}
 		}
 	}, {
-		key: "home",
-		value: function home() {
-			var homeView = new home_view();
+		key: "movies",
+		value: function movies() {
+			var moviesView = new movies_view();
 			// console.log(new XMLSerializer().serializeToString(homeView.el));
 
 			// let menu_home = this.menuBar.el.getElementById("home");
 			// console.log(new XMLSerializer().serializeToString(menu_home));
 
-			this.presenter.menuBarItemPresenter(homeView.el, this.menuBar.el.getElementById("home"));
+			this.presenter.menuBarItemPresenter(moviesView.el, this.menuBar.el.getElementById("movies"));
+		}
+	}, {
+		key: "tv_shows",
+		value: function tv_shows() {
+			var self = this;
+			var tvShowsView = new tv_shows_view();
+			tvShowsView.on("rendered", function () {
+				// console.log(tvShowsView);
+				// console.log(new XMLSerializer().serializeToString(tvShowsView.el));
+				self.presenter.menuBarItemPresenter(tvShowsView.el, self.menuBar.el.getElementById("tv_shows"));
+			});
 		}
 	}, {
 		key: "details",
-		value: function details(url) {
+		value: function details(url, actor) {
 			var id = url.split("/")[1];
-			var detailsView = new details_view({ id: id });
+			var detailsView = new details_view({ id: id, actor: actor });
 			this.presenter.defaultPresenter(detailsView.el);
+		}
+	}, {
+		key: "tv_details",
+		value: function tv_details(url) {
+			var self = this;
+			var id = url.split("/")[1];
+			var tvDetailsView = new tv_details_view({ id: id });
+			tvDetailsView.on("rendered", function () {
+				console.log(new XMLSerializer().serializeToString(tvDetailsView.el));
+				self.presenter.defaultPresenter(tvDetailsView.el);
+			});
 		}
 	}, {
 		key: "descriptiveAlert",
@@ -4371,6 +4739,6 @@ App.onLaunch = function (options) {
     // } else {
     //     navigationDocument.pushDocument(menuBar.el);
     // }
-    router.navigate("#home");
+    router.navigate("#movies");
     // presenter.defaultPresenter(menuBar.el);
 };

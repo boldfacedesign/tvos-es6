@@ -16,7 +16,7 @@ let tmpl = json => tmplString`<?xml version="1.0" encoding="UTF-8" ?>
 					<title>Schwarzenegger</title>
 				</header>
 				<section>
-					${json.arnie.map(item => tmplString`<lockup href="#details/${item.imdbID}">
+					${json.arnie.map(item => tmplString`<lockup href="#details/${item.imdbID}" actor="arnie">
 						<img src="${item.Poster}" width="300" height="450" />
 						<title>$${item.Title}</title>
 					</lockup>`)}
@@ -27,7 +27,7 @@ let tmpl = json => tmplString`<?xml version="1.0" encoding="UTF-8" ?>
 					<title>Cage</title>
 				</header>
 				<section>
-					${json.cage.map(item => tmplString`<lockup href="#details/${item.imdbID}">
+					${json.cage.map(item => tmplString`<lockup href="#details/${item.imdbID}" actor="cage">
 						<img src="${item.Poster}" width="300" height="450" />
 						<title>$${item.Title}</title>
 					</lockup>`)}

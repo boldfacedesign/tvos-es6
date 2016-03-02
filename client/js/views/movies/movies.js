@@ -2,7 +2,7 @@ import base_view from "../../shared/base_view.js"
 import template from "./template.js"
 import movies from "../../models/movies.js"
 
-export default class home_view extends base_view {
+export default class movies_view extends base_view {
 	constructor (options) {
 		super(options);
 		this.model = movies;

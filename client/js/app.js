@@ -45,7 +45,7 @@ App.onLaunch = options => {
     // } else {
     //     navigationDocument.pushDocument(menuBar.el);
     // }
-    router.navigate("#home");
+    router.navigate("#movies");
     // presenter.defaultPresenter(menuBar.el);
 }
 
