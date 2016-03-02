@@ -1,16 +1,19 @@
 import base_model from "../shared/base_model.js"
 
-export default class TVShowsModel extends base_model {
+export default class SearchModel extends base_model {
 	constructor() {
 		super();
-		this.url = "https://api.themoviedb.org/3/tv/popular?api_key=cad193d8b6b642176344ffe8d4219062";
-		this.type = "tv_shows";
+		this.type = "search";
+		this.term = "";
 		this.initialize();
 	}
 	initialize() {
 	}
 	fetch(options) {
 		let self = this;
+		this.term = options.term;
+		this.url = "http://www.omdbapi.com/?s=" + options.term + "&r=json";
+
 		var callback = function(err, data) {
 			console.log("options.callback was missing for this request");
 		};

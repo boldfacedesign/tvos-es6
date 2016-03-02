@@ -64,4 +64,12 @@ export default class base_view {
 		this._callbacks = this._callbacks || {};
 		return this._callbacks['$' + event] || [];
 	}
+	updateDocument(resource, parentNode) {
+		let impl = this.el.implementation,
+		    ls_parser = impl.createLSParser(1, null),
+		    ls_input = impl.createLSInput();
+
+		ls_input.stringData = resource;
+		ls_parser.parseWithContext(ls_input, parentNode, 2);
+	}
 }

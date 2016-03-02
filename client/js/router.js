@@ -7,6 +7,7 @@ import TVShowsView from "./views/tv_shows/tv_shows.js"
 import MoviesView from "./views/movies/movies.js"
 import DetailsView from "./views/details/details.js"
 import TVDetailsView from "./views/tv_details/tv_details.js"
+import SearchView from "./views/search/search.js"
 import DescriptiveAlertView from "./modals/descriptive_alert/descriptive_alert.js"
 
 export default class router {
@@ -34,6 +35,9 @@ export default class router {
 				break;
 			case "tv_details":
 				self.tv_details(url);
+				break;
+			case "search":
+				self.search();
 				break;
 		}
 	}
@@ -68,6 +72,14 @@ export default class router {
 			console.log(new XMLSerializer().serializeToString(tvDetailsView.el));
 			self.presenter.defaultPresenter(tvDetailsView.el);
 		});
+	}
+	search() {
+		let self = this;
+		let searchView = new SearchView();
+		searchView.on("rendered", function() {
+			self.presenter.menuBarItemPresenter(searchView.el, self.menuBar.el.getElementById("search"));
+		});
+		searchView.render();
 	}
 	descriptiveAlert() {
 		let descriptiveAlertView = new DescriptiveAlertView({test: "123"});

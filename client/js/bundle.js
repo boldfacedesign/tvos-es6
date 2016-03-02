@@ -509,12 +509,22 @@ var base_view = function () {
 			this._callbacks = this._callbacks || {};
 			return this._callbacks['$' + event] || [];
 		}
+	}, {
+		key: "updateDocument",
+		value: function updateDocument(resource, parentNode) {
+			var impl = this.el.implementation,
+			    ls_parser = impl.createLSParser(1, null),
+			    ls_input = impl.createLSInput();
+
+			ls_input.stringData = resource;
+			ls_parser.parseWithContext(ls_input, parentNode, 2);
+		}
 	}]);
 	return base_view;
 }();
 
 function template() {
-  return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n  <menuBarTemplate>\n    <menuBar>\n      <menuItem href=\"#movies\" id=\"movies\" loadingtext=\"Movies\">\n        <title>Movies</title>\n      </menuItem>\n      <menuItem href=\"#tv_shows\" id=\"tv_shows\" loadingtext=\"Books\">\n        <title>TV Shows</title>\n      </menuItem>\n    </menuBar>\n  </menuBarTemplate>\n</document>";
+  return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n  <menuBarTemplate>\n    <menuBar>\n      <menuItem href=\"#movies\" id=\"movies\" loadingtext=\"Movies\">\n        <title>Movies</title>\n      </menuItem>\n      <menuItem href=\"#tv_shows\" id=\"tv_shows\" loadingtext=\"TV Shows\">\n        <title>TV Shows</title>\n      </menuItem>\n      <menuItem href=\"#search\" id=\"search\" loadingtext=\"Search\">\n        <title>Search</title>\n      </menuItem>\n    </menuBar>\n  </menuBarTemplate>\n</document>";
 }
 
 var presenter = new Presenter$1();
@@ -655,21 +665,21 @@ var base_model = function () {
 	return base_model;
 }();
 
-var BooksModel = function (_base_model) {
-	babelHelpers.inherits(BooksModel, _base_model);
+var TVShowsModel = function (_base_model) {
+	babelHelpers.inherits(TVShowsModel, _base_model);
 
-	function BooksModel() {
-		babelHelpers.classCallCheck(this, BooksModel);
+	function TVShowsModel() {
+		babelHelpers.classCallCheck(this, TVShowsModel);
 
-		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(BooksModel).call(this));
+		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(TVShowsModel).call(this));
 
 		_this.url = "https://api.themoviedb.org/3/tv/popular?api_key=cad193d8b6b642176344ffe8d4219062";
-		_this.type = "books";
+		_this.type = "tv_shows";
 		_this.initialize();
 		return _this;
 	}
 
-	babelHelpers.createClass(BooksModel, [{
+	babelHelpers.createClass(TVShowsModel, [{
 		key: "initialize",
 		value: function initialize() {}
 	}, {
@@ -707,7 +717,7 @@ var BooksModel = function (_base_model) {
 			return xhr;
 		}
 	}]);
-	return BooksModel;
+	return TVShowsModel;
 }(base_model);
 
 var tv_shows_view = function (_base_view) {
@@ -718,7 +728,7 @@ var tv_shows_view = function (_base_view) {
 
 		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(tv_shows_view).call(this, options));
 
-		_this.model = new BooksModel();
+		_this.model = new TVShowsModel();
 		_this.initialize();
 		return _this;
 	}
@@ -4561,6 +4571,133 @@ var tv_details_view = function (_base_view) {
 	return tv_details_view;
 }(base_view);
 
+var _templateObject$4 = babelHelpers.taggedTemplateLiteral(["<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n\t<head>\n\t\t<style>\n\t\t\t.suggestionListLayout {\n\t\t\t\tmargin: -150 0;\n\t\t\t}\n\t\t\t.shelf {\n\t\t\t\ttv-interitem-spacing: 60;\n\t\t\t}\n\t\t</style>\n\t</head>\n\t<searchTemplate>\n\t\t<searchField>Search</searchField>\n\t\t<collectionList>\n\t\t\t<list>\n\t\t\t\t<section>\n\t\t\t\t\t<header>\n\t\t\t\t\t\t<title>Type to Search</title>\n\t\t\t\t\t</header>\n\t\t\t\t</section>\n\t\t\t</list>\n\t\t</collectionList>\n\t</searchTemplate>\n</document>"], ["<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<document>\n\t<head>\n\t\t<style>\n\t\t\t.suggestionListLayout {\n\t\t\t\tmargin: -150 0;\n\t\t\t}\n\t\t\t.shelf {\n\t\t\t\ttv-interitem-spacing: 60;\n\t\t\t}\n\t\t</style>\n\t</head>\n\t<searchTemplate>\n\t\t<searchField>Search</searchField>\n\t\t<collectionList>\n\t\t\t<list>\n\t\t\t\t<section>\n\t\t\t\t\t<header>\n\t\t\t\t\t\t<title>Type to Search</title>\n\t\t\t\t\t</header>\n\t\t\t\t</section>\n\t\t\t</list>\n\t\t</collectionList>\n\t</searchTemplate>\n</document>"]);
+
+var tmpl$4 = function tmpl(json) {
+	return tmplString(_templateObject$4);
+};
+
+var _templateObject$5 = babelHelpers.taggedTemplateLiteral(["<shelf class=\"shelf\">\n\t<header>\n\t\t<title>Search results for ", "</title>\n\t</header>\n\t<section id=\"results\">\n\t\t", "\n\t</section>\n</shelf>"], ["<shelf class=\"shelf\">\n\t<header>\n\t\t<title>Search results for ", "</title>\n\t</header>\n\t<section id=\"results\">\n\t\t", "\n\t</section>\n</shelf>"]);
+var _templateObject2$4 = babelHelpers.taggedTemplateLiteral(["<lockup href=\"#details/", "\">\n\t\t\t\t<img src=\"", "\" width=\"300\" height=\"399\" />\n\t\t\t\t<title>", "</title>\n\t\t\t</lockup>"], ["<lockup href=\"#details/", "\">\n\t\t\t\t<img src=\"", "\" width=\"300\" height=\"399\" />\n\t\t\t\t<title>", "</title>\n\t\t\t</lockup>"]);
+var tmpl$5 = function tmpl(model) {
+	return tmplString(_templateObject$5, model.term, model.json.Search.map(function (item) {
+		return tmplString(_templateObject2$4, item.imdbID, item.Poster, item.Title);
+	}));
+};
+
+var SearchModel = function (_base_model) {
+	babelHelpers.inherits(SearchModel, _base_model);
+
+	function SearchModel() {
+		babelHelpers.classCallCheck(this, SearchModel);
+
+		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(SearchModel).call(this));
+
+		_this.type = "search";
+		_this.term = "";
+		_this.initialize();
+		return _this;
+	}
+
+	babelHelpers.createClass(SearchModel, [{
+		key: "initialize",
+		value: function initialize() {}
+	}, {
+		key: "fetch",
+		value: function fetch(options) {
+			var self = this;
+			this.term = options.term;
+			this.url = "http://www.omdbapi.com/?s=" + options.term + "&r=json";
+
+			var callback = function callback(err, data) {
+				console.log("options.callback was missing for this request");
+			};
+			if (options) {
+				var headers = options.headers || {};
+				var callback = options.callback;
+			}
+			var xhr = new XMLHttpRequest();
+			xhr.responseType = 'json';
+			xhr.onreadystatechange = function () {
+				try {
+					if (xhr.readyState === 4) {
+						if (xhr.status === 200) {
+							self.json = JSON.parse(xhr.responseText);
+							self.emit("sync");
+						} else {
+							// callback(new Error("Error [" + xhr.status + "] making http request: " + this.url));
+						}
+					}
+				} catch (err) {
+					console.error('Aborting request ' + this.url + '. Error: ' + err);
+					xhr.abort();
+					// callback(new Error("Error making request to: " + this.url + " error: " + err));
+				}
+			};
+			xhr.open("GET", this.url, true);
+			xhr.send();
+
+			return xhr;
+		}
+	}]);
+	return SearchModel;
+}(base_model);
+
+var search_view = function (_base_view) {
+	babelHelpers.inherits(search_view, _base_view);
+
+	function search_view(options) {
+		babelHelpers.classCallCheck(this, search_view);
+
+		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(search_view).call(this, options));
+
+		var self = _this;
+		_this.model = new SearchModel();
+		_this.model.on("sync", function () {
+			self.renderResults();
+		});
+		return _this;
+	}
+
+	babelHelpers.createClass(search_view, [{
+		key: "initialize",
+		value: function initialize() {}
+	}, {
+		key: "render",
+		value: function render() {
+			this.el = babelHelpers.get(Object.getPrototypeOf(search_view.prototype), "makeDoc", this).call(this, tmpl$4());
+			this.emit("rendered");
+
+			this.searchField = this.el.getElementsByTagName("searchField").item(0);
+			this.keyboard = this.searchField.getFeature("Keyboard");
+
+			this.keyboard.onTextChange = function () {
+				this.search();
+			}.bind(this);
+		}
+	}, {
+		key: "search",
+		value: function search() {
+			var original_query = this.keyboard.text,
+			    query = encodeURIComponent(original_query);
+
+			if (original_query.length > 2) {
+				this.model.fetch({ term: original_query });
+			}
+		}
+	}, {
+		key: "renderResults",
+		value: function renderResults() {
+			console.log(this.model);
+			console.log(tmpl$5(this.model));
+			if (this.model.json.Search.length > 0) {
+				this.updateDocument(tmpl$5(this.model), this.el.getElementsByTagName("collectionList").item(0));
+			}
+		}
+	}]);
+	return search_view;
+}(base_view);
+
 function template$1(json) {
 	return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n\t<document>\n\t\t<alertTemplate>\n\t\t\t<title>" + json.test + "</title>\n\t\t\t<description>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</description>\n\t\t\t<button videoURL=\"http://techslides.com/demos/sample-videos/small.mp4\">\n\t\t\t\t<text>Button 1</text>\n\t\t\t</button>\n\t\t\t<button videoURL=\"http://static.videezy.com/system/resources/previews/000/004/325/original/49.mp4\">\n\t\t\t\t<text>Button 2</text>\n\t\t\t</button>\n\t\t</alertTemplate>\n\t</document>";
 }
@@ -4647,6 +4784,9 @@ var router$1 = function () {
 				case "tv_details":
 					self.tv_details(url);
 					break;
+				case "search":
+					self.search();
+					break;
 			}
 		}
 	}, {
@@ -4688,6 +4828,16 @@ var router$1 = function () {
 				console.log(new XMLSerializer().serializeToString(tvDetailsView.el));
 				self.presenter.defaultPresenter(tvDetailsView.el);
 			});
+		}
+	}, {
+		key: "search",
+		value: function search() {
+			var self = this;
+			var searchView = new search_view();
+			searchView.on("rendered", function () {
+				self.presenter.menuBarItemPresenter(searchView.el, self.menuBar.el.getElementById("search"));
+			});
+			searchView.render();
 		}
 	}, {
 		key: "descriptiveAlert",
