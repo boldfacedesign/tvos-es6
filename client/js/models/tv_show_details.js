@@ -27,13 +27,13 @@ export default class TVShowDetailsModel extends base_model {
 						self.json = JSON.parse(xhr.responseText);
 						self.emit("sync");
 					} else {
-						// callback(new Error("Error [" + xhr.status + "] making http request: " + this.url));
+						callback(new Error("Error [" + xhr.status + "] making http request: " + this.url));
 					}
 				}
 			} catch (err) {
 				console.error('Aborting request ' + this.url + '. Error: ' + err);
 				xhr.abort();
-				// callback(new Error("Error making request to: " + this.url + " error: " + err));
+				callback(new Error("Error making request to: " + this.url + " error: " + err));
 			}
 		};
 		xhr.open("GET", this.url, true);
